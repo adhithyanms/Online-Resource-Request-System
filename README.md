@@ -10,8 +10,8 @@ Online Resource Request System is a web-based application that allows students a
 ## Technology Stack
 
 * Frontend: React / HTML / CSS / JavaScript
-* Backend: Java Spring Boot
-* Database: MySQL
+* Backend: Node.js
+* Database: Moongo
 * Server: Apache Tomcat
 
 ---
