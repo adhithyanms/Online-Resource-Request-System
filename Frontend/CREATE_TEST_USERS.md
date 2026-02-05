@@ -1,45 +1,46 @@
 # Creating Test Users
 
-This guide shows you how to create test users for the Resource Request System.
+This guide shows you how to create test users for the Resource Request System with Google OAuth.
 
 ## Quick Setup
 
-### Step 1: Register Users Through the App
+### Step 1: Sign In Through Google
 
-1. Open the application in your browser
-2. Click "Sign up here" on the login page
-3. Create these two accounts:
+Since the app now uses Google OAuth, you need Google accounts to login.
 
-**Account 1 - Admin User:**
-- Full Name: Admin User
-- Email: admin@college.edu
-- Password: admin123
-- Confirm Password: admin123
+**For Testing:**
+- Use your personal Gmail account
+- Create test Google accounts for testing different scenarios
+- Or use [Google's test accounts](https://support.google.com/accounts/answer/1715493)
 
-**Account 2 - Regular User:**
-- Full Name: John Student
-- Email: user@college.edu
-- Password: user123
-- Confirm Password: user123
+### Step 2: Sign In and Create Profile
 
-### Step 2: Upgrade First User to Admin
+1. Open the application in your browser (e.g., `http://localhost:5173`)
+2. Click "Sign in with Google"
+3. Select your Google account and authorize the app
+4. The profile is created automatically on first login
+5. You'll be redirected to the Dashboard
 
-After registering both users, run this SQL command in Supabase SQL Editor to make the first user an admin:
+### Step 3: Make a User Admin
+
+After a user logs in with Google, run this SQL command in Supabase SQL Editor to give them admin role:
 
 ```sql
--- Make the user with email 'admin@college.edu' an admin
+-- Make a user an admin by their Google email
 UPDATE profiles
 SET role = 'admin'
-WHERE email = 'admin@college.edu';
+WHERE email = 'your-email@gmail.com';
 ```
 
-### Step 3: Verify
+Replace `your-email@gmail.com` with the actual Google email address.
 
-1. Log out of the application
-2. Log in with admin@college.edu / admin123
+### Step 4: Verify
+
+1. Sign out of the application
+2. Sign in with the admin email (via Google OAuth)
 3. You should now see the Admin Dashboard with admin menu options
 
-## Alternative: Using Supabase Dashboard
+## Making Users Admin via Supabase Dashboard
 
 ### Method 1: SQL Editor
 
@@ -49,12 +50,12 @@ Go to Supabase Dashboard → SQL Editor → New Query, then run:
 -- Update existing user to admin role
 UPDATE profiles
 SET role = 'admin'
-WHERE email = 'your-email@example.com';
+WHERE email = 'your-gmail@gmail.com';
 
 -- Verify the change
 SELECT id, email, full_name, role
 FROM profiles
-WHERE email = 'your-email@example.com';
+WHERE email = 'your-gmail@gmail.com';
 ```
 
 ### Method 2: Table Editor
@@ -62,80 +63,88 @@ WHERE email = 'your-email@example.com';
 1. Go to Supabase Dashboard
 2. Navigate to Table Editor
 3. Select the "profiles" table
-4. Find the user you want to make admin
+4. Find the user you want to make admin (by email)
 5. Click on the "role" field
 6. Change from "user" to "admin"
 7. Save changes
 
 ## Testing the Application
 
-### As Regular User (user@college.edu):
+### As Regular User:
 
-1. View Dashboard
-2. Browse Resources
-3. Create Resource Requests
-4. View My Requests
-5. See request status changes
+1. Sign in with personal Gmail (not admin)
+2. View Dashboard
+3. Browse Resources
+4. Create Resource Requests
+5. View My Requests
+6. See request status changes
 
-### As Admin (admin@college.edu):
+### As Admin:
 
-1. View Admin Dashboard
-2. See all system statistics
-3. View All Requests from all users
-4. Approve/Reject requests
-5. Manage Resources (Add/Edit/Delete)
+1. Sign in with admin email (via Google OAuth)
+2. View Admin Dashboard
+3. See all system statistics
+4. View All Requests from all users
+5. Approve/Reject requests
+6. Manage Resources (Add/Edit/Delete)
 
-## Creating Additional Users
+## Creating Additional Test Users
 
-To create more test users:
+To test with multiple users:
 
-1. Use the registration form in the app
-2. Or use the Supabase Dashboard to manually insert users
-3. All new users default to "user" role
-4. Update role to "admin" if needed using SQL
+1. Use different Gmail accounts
+2. Each logs in via Google OAuth
+3. First login automatically creates profile
+4. All new users default to "user" role
+5. Update role to "admin" if needed using SQL
 
 ## Sample Test Scenario
 
-1. **As User:**
-   - Login as user@college.edu
+1. **As Regular User:**
+   - Sign in with personal-email@gmail.com
    - Browse resources
    - Request a laptop (quantity: 1)
    - Note the request appears as "pending"
 
 2. **As Admin:**
-   - Logout and login as admin@college.edu
+   - Sign out and sign in with admin-email@gmail.com
    - Go to "All Requests"
-   - Find the laptop request
+   - Find the laptop request from the other user
    - Click "Approve" or "Reject" with a reason
 
-3. **As User Again:**
-   - Logout and login as user@college.edu
+3. **As Regular User Again:**
+   - Sign out and sign in with personal-email@gmail.com
    - Go to "My Requests"
    - See the updated status
    - If rejected, see the rejection reason
 
 ## Troubleshooting
 
-### User Can't Login After Registration
-- Check that the profile was created in the profiles table
-- Verify the email and password are correct
-- Check browser console for errors
+### User Can't Login
+- Verify Google OAuth is configured in Supabase (see GOOGLE_OAUTH_SETUP.md)
+- Check redirect URIs match in Google Cloud Console and Supabase
+- Try signing in with different Google account
+- Check browser console for OAuth errors
+
+### Profile Not Created
+- Profile should auto-create on first login
+- Check profiles table in Supabase
+- Verify RLS policies aren't blocking insert
 
 ### Admin Menu Not Showing
 - Verify the role field is set to "admin" in profiles table
-- Try logging out and logging back in
-- Clear browser cache
+- Try signing out and signing back in
+- Clear browser cache and cookies
 
 ### Can't Update User Role
 - Check you have proper permissions in Supabase
 - Verify the user exists in profiles table
-- Make sure you're using the correct email in the SQL query
+- Make sure you're using the correct email from Google (case-sensitive)
+- Check there are no RLS policies blocking the update
 
-## Security Note
+## Notes
 
-These are test credentials for development/demonstration purposes only. In production:
-- Use strong, unique passwords
-- Implement password policies
-- Add two-factor authentication
-- Use secure password reset flows
-- Never commit credentials to version control
+- Each Google account can only have one profile
+- Email is unique per Google account
+- Profile role defaults to "user" for new signups
+- Only SQL can change admin role (for security)
