@@ -2,13 +2,14 @@
 
 ## Overview
 
-A complete college campus resource request system built with React, TypeScript, Tailwind CSS, and Supabase. The system supports two user roles: **Users** and **Admins**.
+A complete college campus resource request system built with React, JavaScript, Tailwind CSS, and Supabase. The system supports two user roles: **Users** and **Admins**. Authentication is handled via Google OAuth for a seamless, secure login experience.
 
 ## Features
 
 ### Authentication
-- User registration and login
-- JWT token-based authentication
+- Google OAuth sign-in
+- Automatic profile creation on first login
+- JWT token-based authentication (via Supabase)
 - Role-based access control (User/Admin)
 - Protected routes
 
@@ -27,10 +28,11 @@ A complete college campus resource request system built with React, TypeScript, 
 
 ## Technology Stack
 
-- **Frontend**: React 18 with TypeScript
+- **Frontend**: React 18 with JavaScript (JSX)
 - **Styling**: Tailwind CSS
 - **Routing**: React Router v6
 - **Icons**: Lucide React
+- **Authentication**: Google OAuth via Supabase
 - **Backend**: Supabase (Database + Auth)
 - **Build Tool**: Vite
 
@@ -39,30 +41,29 @@ A complete college campus resource request system built with React, TypeScript, 
 ```
 src/
 ├── components/         # Reusable components
-│   ├── Layout.tsx     # Main layout with navigation
-│   └── ProtectedRoute.tsx
+│   ├── Layout.jsx      # Main layout with navigation
+│   └── ProtectedRoute.jsx
 ├── contexts/          # React contexts
-│   └── AuthContext.tsx
+│   └── AuthContext.jsx
 ├── lib/              # Configuration
 │   └── supabase.ts
 ├── pages/            # Page components
-│   ├── Login.tsx
-│   ├── Register.tsx
+│   ├── Login.jsx
 │   ├── user/
-│   │   ├── Dashboard.tsx
-│   │   ├── ResourceList.tsx
-│   │   ├── CreateRequest.tsx
-│   │   └── MyRequests.tsx
+│   │   ├── Dashboard.jsx
+│   │   ├── ResourceList.jsx
+│   │   ├── CreateRequest.jsx
+│   │   └── MyRequests.jsx
 │   └── admin/
-│       ├── AdminDashboard.tsx
-│       ├── AllRequests.tsx
-│       └── ManageResources.tsx
+│       ├── AdminDashboard.jsx
+│       ├── AllRequests.jsx
+│       └── ManageResources.jsx
 ├── services/         # API services
-│   ├── resourceService.ts
-│   └── requestService.ts
-├── types/           # TypeScript types
-│   └── database.ts
-├── App.tsx          # Main app with routing
+│   ├── resourceService.js
+│   └── requestService.js
+├── types/           # JSDoc type definitions
+│   └── database.js
+├── App.jsx          # Main app with routing
 └── main.tsx         # Entry point
 ```
 
