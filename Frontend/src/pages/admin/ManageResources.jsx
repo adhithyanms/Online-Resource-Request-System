@@ -3,6 +3,17 @@ import { Layout } from '../../components/Layout';
 import { resourceService } from '../../services/resourceService';
 import { Package, Plus, Edit, Trash2, X, Save, Search } from 'lucide-react';
 
+const CATEGORIES = [
+  'Electronics',
+  'Electronics Components',
+  'Lab Equipment',
+  'Stationery',
+  'Consumables',
+  'Tools',
+  'Furniture',
+  'Others'
+];
+
 export const ManageResources = () => {
   const [resources, setResources] = useState([]);
   const [filteredResources, setFilteredResources] = useState([]);
@@ -16,7 +27,7 @@ export const ManageResources = () => {
     name: '',
     description: '',
     category: '',
-    quantityAvailable: 0,
+    quantity_available: 0,
   });
 
   useEffect(() => {
@@ -58,8 +69,8 @@ export const ManageResources = () => {
     setFormData({
       name: '',
       description: '',
-      category: '',
-      quantityAvailable: 0,
+      category: CATEGORIES[0],
+      quantity_available: 0,
     });
     setShowModal(true);
   };
@@ -70,7 +81,7 @@ export const ManageResources = () => {
       name: resource.name,
       description: resource.description,
       category: resource.category,
-      quantityAvailable: resource.quantityAvailable,
+      quantity_available: resource.quantity_available,
     });
     setShowModal(true);
   };
@@ -80,11 +91,11 @@ export const ManageResources = () => {
 
     setProcessing(true);
     try {
-      await resourceService.deleteResource(resource._id);
+      await resourceService.deleteResource(resource.id);
       await loadResources();
     } catch (error) {
       console.error('Error deleting resource:', error);
-      alert('Failed to delete resource');
+      alert(error.message || 'Failed to delete resource');
     } finally {
       setProcessing(false);
     }
@@ -101,7 +112,7 @@ export const ManageResources = () => {
     setProcessing(true);
     try {
       if (editingResource) {
-        await resourceService.updateResource(editingResource._id, formData);
+        await resourceService.updateResource(editingResource.id, formData);
       } else {
         await resourceService.createResource(formData);
       }
@@ -109,7 +120,7 @@ export const ManageResources = () => {
       setShowModal(false);
     } catch (error) {
       console.error('Error saving resource:', error);
-      alert('Failed to save resource');
+      alert(error.message || 'Failed to save resource');
     } finally {
       setProcessing(false);
     }
@@ -174,7 +185,7 @@ export const ManageResources = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResources.map((resource) => (
               <div
-                key={resource._id}
+                key={resource.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <div className="p-6">
@@ -194,7 +205,7 @@ export const ManageResources = () => {
 
                   <div className="mb-4">
                     <p className="text-xs text-gray-500">Available Quantity</p>
-                    <p className="text-2xl font-bold text-gray-900">{resource.quantityAvailable}</p>
+                    <p className="text-2xl font-bold text-gray-900">{resource.quantity_available}</p>
                   </div>
 
                   <div className="flex gap-2">
@@ -257,16 +268,19 @@ export const ManageResources = () => {
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                   Category *
                 </label>
-                <input
+                <select
                   id="category"
-                  type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., Electronics, Supplies"
                   required
                   disabled={processing}
-                />
+                >
+                  <option value="" disabled>Select a category</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -277,9 +291,9 @@ export const ManageResources = () => {
                   id="quantity"
                   type="number"
                   min="0"
-                  value={formData.quantityAvailable}
+                  value={formData.quantity_available}
                   onChange={(e) =>
-                    setFormData({ ...formData, quantityAvailable: parseInt(e.target.value) })
+                    setFormData({ ...formData, quantity_available: parseInt(e.target.value) })
                   }
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required

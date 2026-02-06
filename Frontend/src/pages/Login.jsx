@@ -20,7 +20,14 @@ export const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsSigningIn(true);
+    const emailRegex = /^[a-z]+\.(it|cs|ee|ec|cd|cb|ad|al|fd)(22|23|24|25|26)@bitsathy\.ac\.in$/;
+    const isAdmin = email.toLowerCase() === 'adhithyanshanmugam@gmail.com';
+
+    if (!isAdmin && !emailRegex.test(email)) {
+      setError('Please use a valid email format: name.deptyear@bitsathy.ac.in');
+      setIsSigningIn(false);
+      return;
+    }
 
     try {
       const { error } = await signIn(email, password);

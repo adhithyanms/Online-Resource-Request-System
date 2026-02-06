@@ -24,7 +24,7 @@ const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://adhithyanms:adhi%4012
 
 mongoose.connect(mongoURI)
     .then(() => {
-        console.log('Connected to MongoDB');
+        console.log(`Connected to MongoDB : ${mongoose.connection.name}`);
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });

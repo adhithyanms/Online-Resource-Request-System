@@ -101,8 +101,8 @@ export const MyRequests = () => {
                 key={btn.value}
                 onClick={() => setFilter(btn.value)}
                 className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === btn.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
                 {btn.label} ({btn.count})
@@ -151,7 +151,7 @@ export const MyRequests = () => {
                       <p className="text-sm text-gray-600 mb-2">{request.resource?.description}</p>
                       <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                         <span>
-                          <strong>Quantity:</strong> {request.quantityRequested}
+                          <strong>Quantity:</strong> {request.quantity_requested}
                         </span>
                         <span>
                           <strong>Category:</strong> {request.resource?.category}
