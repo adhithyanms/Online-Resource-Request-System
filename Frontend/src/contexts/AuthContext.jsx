@@ -44,20 +44,6 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const signUp = async (email, password, fullName) => {
-    try {
-      // 1. Sign up with Firebase
-      await createUserWithEmailAndPassword(auth, email, password);
-
-      // 2. Register with Backend
-      await api.post('/auth/signup', { email, password, fullName });
-
-      // 3. Automatically sign in to get the token
-      return await signIn(email, password);
-    } catch (error) {
-      return { error };
-    }
-  };
 
   const signIn = async (email, password) => {
     try {
@@ -129,7 +115,6 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     isAdmin: user?.role === 'admin',
-    signUp,
     signIn,
     signInWithGoogle,
     signOut

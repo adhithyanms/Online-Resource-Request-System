@@ -25,7 +25,7 @@ export const CreateRequest = () => {
   const loadResources = async () => {
     try {
       const data = await resourceService.getAllResources();
-      setResources(data.filter((r) => r.quantityAvailable > 0));
+      setResources(data.filter((r) => r.quantity_available > 0));
     } catch (error) {
       console.error('Error loading resources:', error);
       setError('Failed to load resources');
@@ -104,7 +104,7 @@ export const CreateRequest = () => {
                 <option value="">Choose a resource...</option>
                 {resources.map((resource) => (
                   <option key={resource.id} value={resource.id}>
-                    {resource.name} (Available: {resource.quantityAvailable})
+                    {resource.name} (Available: {resource.quantity_available})
                   </option>
                 ))}
               </select>
@@ -116,7 +116,7 @@ export const CreateRequest = () => {
                 <p className="text-sm text-blue-800 mb-2">{selectedResource.description}</p>
                 <div className="flex justify-between text-sm text-blue-700">
                   <span>Category: {selectedResource.category}</span>
-                  <span>Available: {selectedResource.quantityAvailable}</span>
+                  <span>Available: {selectedResource.quantity_available}</span>
                 </div>
               </div>
             )}
@@ -129,7 +129,7 @@ export const CreateRequest = () => {
                 id="quantity"
                 type="number"
                 min="1"
-                max={selectedResource?.quantityAvailable || 999}
+                max={selectedResource?.quantity_available || 999}
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 disabled={submitting || !selectedResourceId}

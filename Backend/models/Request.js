@@ -2,14 +2,16 @@ const mongoose = require('mongoose');
 
 const requestSchema = new mongoose.Schema({
     userId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     resourceId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Resource',
         required: true
     },
-    quantityRequested: {
+    quantity_requested: {
         type: Number,
         required: true
     },

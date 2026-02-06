@@ -19,10 +19,10 @@ export const requestService = {
     }
   },
 
-  createRequest: async (resourceId, quantityRequested, purpose) => {
+  createRequest: async (resourceId, quantity_requested, purpose) => {
     return api.post('/requests', {
       resourceId,
-      quantityRequested,
+      quantity_requested,
       purpose,
       status: 'pending'
     });

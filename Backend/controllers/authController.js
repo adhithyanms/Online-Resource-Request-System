@@ -10,35 +10,6 @@ const generateToken = (user) => {
     );
 };
 
-exports.signup = async (req, res) => {
-    try {
-        const { email, password, fullName } = req.body;
-
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'Error: Email is already in use!' });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        let role = 'user';
-        if (email.toLowerCase() === 'adhithyanshanmugam@gmail.com') {
-            role = 'admin';
-        }
-
-        const user = new User({
-            email,
-            password: hashedPassword,
-            fullName,
-            role
-        });
-
-        await user.save();
-        res.status(200).json({ message: 'User registered successfully!' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 exports.signin = async (req, res) => {
     try {
@@ -74,9 +45,16 @@ exports.googleSignin = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (!user) {
+            const emailRegex = /^[a-z]+\.(it|cs|ee|ec|cd|cb|ad|al|fd)(22|23|24|25|26)@bitsathy\.ac\.in$/;
+            const isAdmin = email.toLowerCase() === 'adhithyanshanmugam@gmail.com';
+
+            if (!isAdmin && !emailRegex.test(email)) {
+                return res.status(400).json({ message: 'Error: Invalid email format!' });
+            }
+
             // Determine role
             let role = 'user';
-            if (email.toLowerCase() === 'adhithyanshanmugam@gmail.com') {
+            if (isAdmin) {
                 role = 'admin';
             }
 

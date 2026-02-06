@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
-import { Register } from './pages/Register';
 import { Dashboard } from './pages/user/Dashboard';
 import { ResourceList } from './pages/user/ResourceList';
 import { CreateRequest } from './pages/user/CreateRequest';

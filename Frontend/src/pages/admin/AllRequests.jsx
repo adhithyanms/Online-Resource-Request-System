@@ -29,15 +29,16 @@ export const AllRequests = () => {
   };
 
   const handleApprove = async (request) => {
-    if (!confirm(`Approve request for ${request.resource?.name}?`)) return;
+    if (!confirm(`Approve request for ${request.resource?.name || 'this resource'}?`)) return;
 
     setProcessing(true);
     try {
-      await requestService.updateRequestStatus(request.id, 'approved');
+      const requestId = request.id || request._id;
+      await requestService.updateRequestStatus(requestId, 'approved');
       await loadRequests();
     } catch (error) {
       console.error('Error approving request:', error);
-      alert('Failed to approve request');
+      alert(error.message || 'Failed to approve request');
     } finally {
       setProcessing(false);
     }
@@ -57,8 +58,9 @@ export const AllRequests = () => {
 
     setProcessing(true);
     try {
+      const requestId = selectedRequest.id || selectedRequest._id;
       await requestService.updateRequestStatus(
-        selectedRequest.id,
+        requestId,
         'rejected',
         rejectionReason
       );
@@ -68,7 +70,7 @@ export const AllRequests = () => {
       setRejectionReason('');
     } catch (error) {
       console.error('Error rejecting request:', error);
-      alert('Failed to reject request');
+      alert(error.message || 'Failed to reject request');
     } finally {
       setProcessing(false);
     }
@@ -164,8 +166,8 @@ export const AllRequests = () => {
                 key={btn.value}
                 onClick={() => setFilter(btn.value)}
                 className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === btn.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
                 {btn.label} ({btn.count})
