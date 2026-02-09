@@ -1,31 +1,48 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Menu, X, LayoutDashboard, Package, FileText, Settings } from 'lucide-react';
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  LogOut,
+  Menu,
+  X,
+  LayoutDashboard,
+  Package,
+  FileText,
+  Settings,
+  Users,
+  BarChart3,
+} from "lucide-react";
 
 export const Layout = ({ children }) => {
-  const { profile, signOut, isAdmin } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isSuperAdmin =
+    user?.email?.toLowerCase() === "adhithyanshanmugam@gmail.com";
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    navigate("/");
   };
 
   const isActive = (path) => location.pathname === path;
 
   const userNavItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/resources', label: 'Resources', icon: Package },
-    { path: '/my-requests', label: 'My Requests', icon: FileText },
+    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/resources", label: "Resources", icon: Package },
+    { path: "/my-requests", label: "My Requests", icon: FileText },
   ];
 
   const adminNavItems = [
-    { path: '/admin', label: 'Admin Dashboard', icon: LayoutDashboard },
-    { path: '/admin/requests', label: 'All Requests', icon: FileText },
-    { path: '/admin/resources', label: 'Manage Resources', icon: Settings },
+    { path: "/admin", label: "Admin Dashboard", icon: LayoutDashboard },
+    { path: "/admin/requests", label: "All Requests", icon: FileText },
+    { path: "/admin/resources", label: "Manage Resources", icon: Settings },
+    { path: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+    // Show Manage Users only to super admin
+    ...(isSuperAdmin
+      ? [{ path: "/admin/users", label: "Manage Users", icon: Users }]
+      : []),
   ];
 
   const navItems = isAdmin ? adminNavItems : userNavItems;
@@ -36,9 +53,14 @@ export const Layout = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link to={isAdmin ? '/admin' : '/dashboard'} className="flex items-center">
+              <Link
+                to={isAdmin ? "/admin" : "/dashboard"}
+                className="flex items-center"
+              >
                 <Package className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">Resource System</span>
+                <span className="ml-2 text-xl font-bold text-gray-900">
+                  Resource System
+                </span>
               </Link>
             </div>
 
@@ -51,8 +73,8 @@ export const Layout = ({ children }) => {
                     to={item.path}
                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive(item.path)
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     <Icon className="h-4 w-4 mr-2" />
@@ -63,7 +85,9 @@ export const Layout = ({ children }) => {
 
               <div className="flex items-center ml-4 pl-4 border-l border-gray-200">
                 <div className="flex items-center mr-4">
-                  <span className="text-sm text-gray-700 font-medium">{profile?.full_name}</span>
+                  <span className="text-sm text-gray-700 font-medium">
+                    {user?.fullName ?? user?.email}
+                  </span>
                   {isAdmin && (
                     <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">
                       Admin
@@ -85,7 +109,11 @@ export const Layout = ({ children }) => {
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
               >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </button>
             </div>
           </div>
@@ -103,8 +131,8 @@ export const Layout = ({ children }) => {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
                       isActive(item.path)
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     <Icon className="h-5 w-5 mr-3" />
@@ -114,7 +142,9 @@ export const Layout = ({ children }) => {
               })}
               <div className="border-t border-gray-200 pt-3 mt-3">
                 <div className="px-3 py-2">
-                  <p className="text-sm font-medium text-gray-900">{profile?.full_name}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.fullName ?? user?.email}
+                  </p>
                   {isAdmin && (
                     <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">
                       Admin
@@ -134,7 +164,9 @@ export const Layout = ({ children }) => {
         )}
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
+      </main>
     </div>
   );
 };

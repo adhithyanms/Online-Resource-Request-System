@@ -187,11 +187,14 @@ export const AdminDashboard = () => {
             <p className="text-sm mt-1 opacity-90">Add/edit/delete resources</p>
           </Link>
 
-          <div className="bg-gray-600 hover:bg-gray-700 text-white rounded-lg p-6 text-center transition-colors cursor-default">
+          <Link 
+            to="/admin/analytics"
+            className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-6 text-center transition-colors"
+          >
             <BarChart3 className="h-8 w-8 mx-auto mb-2" />
             <h3 className="font-semibold">Analytics</h3>
-            <p className="text-sm mt-1 opacity-90">Coming soon</p>
-          </div>
+            <p className="text-sm mt-1 opacity-90">View reports</p>
+          </Link>
         </div>
       </div>
     </Layout>

@@ -1,14 +1,16 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/user/Dashboard';
-import { ResourceList } from './pages/user/ResourceList';
-import { CreateRequest } from './pages/user/CreateRequest';
-import { MyRequests } from './pages/user/MyRequests';
-import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { AllRequests } from './pages/admin/AllRequests';
-import { ManageResources } from './pages/admin/ManageResources';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Login } from "./pages/Login";
+import { Dashboard } from "./pages/user/Dashboard";
+import { ResourceList } from "./pages/user/ResourceList";
+import { CreateRequest } from "./pages/user/CreateRequest";
+import { MyRequests } from "./pages/user/MyRequests";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AllRequests } from "./pages/admin/AllRequests";
+import { ManageResources } from "./pages/admin/ManageResources";
+import { ManageUsers } from "./pages/admin/ManageUsers";
+import { Analytics } from "./pages/admin/Analytics";
 
 function App() {
   const { user, loading } = useAuth();
@@ -23,7 +25,10 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route
+        path="/"
+        element={user ? <Navigate to="/dashboard" replace /> : <Login />}
+      />
 
       <Route
         path="/dashboard"
@@ -79,6 +84,22 @@ function App() {
         element={
           <ProtectedRoute adminOnly={true}>
             <ManageResources />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <ManageUsers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/analytics"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <Analytics />
           </ProtectedRoute>
         }
       />
