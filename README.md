@@ -9,11 +9,11 @@ Online Resource Request System is a web-based application that allows students a
 
 ## Technology Stack
 
-* Frontend: React / HTML / CSS / JavaScript
-* Backend: Node.js
-* Database: Moongo
-* Server: Apache Tomcat
-
+* Frontend: React.js / HTML / CSS / JavaScript
+* Backend: Node.js with Express.js
+* Database: MongoDB
+* Authentication: JWT (JSON Web Token)
+* Server: Node.js Runtime Environment
 ---
 
 ## Features
