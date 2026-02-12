@@ -14,10 +14,10 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 
-app.use('/auth', authRoutes);
-app.use('/resources', resourceRoutes);
-app.use('/requests', requestRoutes);
-app.use('/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/requests', requestRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send("we are live");
