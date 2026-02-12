@@ -20,6 +20,9 @@ app.use('/api/resources', resourceRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/users', userRoutes);
 
+app.get('/',(req,res)=>{
+  res.send("we are live");
+})
 // DB Connection
 const mongoURI = process.env.MONGODB_URI;
 
