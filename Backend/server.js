@@ -10,20 +10,21 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
-// Middleware
-app.cors({ origin: '*' });
+app.use(cors({ origin: '*' }));   
 app.use(express.json());
 
-// Routes
+
 app.use('/api/auth', authRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/users', userRoutes);
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
   res.send("we are live");
-})
-// DB Connection
+});
+
+
+
 const mongoURI = process.env.MONGODB_URI;
 
 mongoose.connect(mongoURI)
@@ -34,13 +35,11 @@ mongoose.connect(mongoURI)
     console.error('Database connection error:', err);
   });
 
-// Start server
-if(require.main===module){
+if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`Server running on port locally ${PORT}`);
+    console.log(`Server running locally on port ${PORT}`);
   });
 }
 
 module.exports = app;
-
