@@ -27,18 +27,24 @@ app.get('/', (req, res) => {
 
 const mongoURI = process.env.MONGODB_URI;
 
-mongoose.connect(mongoURI)
-  .then(() => {
-    console.log(`Connected to MongoDB : ${mongoose.connection.name}`);
-  })
-  .catch(err => {
-    console.error('Database connection error:', err);
-  });
+console.log("ENV CHECK:", mongoURI); // ✅ Check if ENV loads
+
+mongoose.connect(mongoURI, {
+  serverSelectionTimeoutMS: 30000
+})
+.then(() => {
+  console.log("✅ MongoDB Connected Successfully");
+})
+.catch(err => {
+  console.error("❌ MongoDB Connection Error:");
+  console.error(err);
+});
 
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
+
   app.listen(PORT, () => {
-    console.log(`Server running locally on port ${PORT}`);
+    console.log(`✅ Server running locally on port ${PORT}`);
   });
 }
 
