@@ -79,15 +79,15 @@ export const MyRequests = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 px-4 md:px-0 pb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">My Requests</h1>
-            <p className="mt-2 text-gray-600">Track the status of your resource requests</p>
+            <p className="mt-1 text-gray-600 font-medium">Track the status of your resource requests</p>
           </div>
           <Link
             to="/resources"
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold text-sm shadow-sm"
           >
             <Plus className="h-5 w-5 mr-2" />
             New Request
@@ -129,36 +129,41 @@ export const MyRequests = () => {
         ) : (
           <div className="space-y-4">
             {filteredRequests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start flex-1">
-                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
-                      {getStatusIcon(request.status)}
+              <div key={request._id || request.id} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-4">
+                  <div className={`p-3 rounded-xl self-start ${getStatusBadge(request.status)}`}>
+                    {getStatusIcon(request.status)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                      <h3 className="text-lg font-bold text-gray-900 truncate">
+                        {request.resource?.name || 'Unknown Resource'}
+                      </h3>
+                      <span
+                        className={`inline-flex px-2 py-0.5 text-[10px] font-bold rounded border uppercase tracking-widest w-fit ${getStatusBadge(
+                          request.status
+                        )}`}
+                      >
+                        {request.status}
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {request.resource?.name || 'Unknown Resource'}
-                        </h3>
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded border ${getStatusBadge(
-                            request.status
-                          )}`}
-                        >
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
+                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{request.resource?.description}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Site</strong>
+                        <span className="truncate">{request.site?.siteName || 'Unknown Site'}</span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{request.resource?.description}</p>
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-700">
-                        <span>
-                          <strong>Quantity:</strong> {request.quantity_requested}
-                        </span>
-                        <span>
-                          <strong>Category:</strong> {request.resource?.category}
-                        </span>
-                        <span>
-                          <strong>Requested:</strong> {new Date(request.createdAt).toLocaleDateString()}
-                        </span>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Qty</strong>
+                        <span>{request.quantity_requested} units</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Category</strong>
+                        <span>{request.resource?.category}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Date</strong>
+                        <span>{new Date(request.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>

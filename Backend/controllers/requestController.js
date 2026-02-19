@@ -6,6 +6,7 @@ exports.getAllRequests = async (req, res) => {
         const requests = await Request.find()
             .populate('userId', 'fullName email')
             .populate('resourceId')
+            .populate('siteId', 'siteName siteAddress')
             .sort({ createdAt: -1 });
 
         // Map to ensure frontend gets 'id' and correct structure
@@ -14,6 +15,7 @@ exports.getAllRequests = async (req, res) => {
             id: item._id.toString(),
             user: item.userId,
             resource: item.resourceId,
+            site: item.siteId,
             quantity_requested: item.quantity_requested
         }));
 
@@ -27,12 +29,14 @@ exports.getMyRequests = async (req, res) => {
     try {
         const requests = await Request.find({ userId: req.user.id })
             .populate('resourceId')
+            .populate('siteId', 'siteName')
             .sort({ createdAt: -1 });
 
         const mappedRequests = requests.map(item => ({
             ...item.toObject(),
             id: item._id.toString(),
             resource: item.resourceId,
+            site: item.siteId,
             quantity_requested: item.quantity_requested
         }));
 
@@ -44,10 +48,11 @@ exports.getMyRequests = async (req, res) => {
 
 exports.createRequest = async (req, res) => {
     try {
-        const { resourceId, quantity_requested, purpose } = req.body;
+        const { resourceId, siteId, quantity_requested, purpose } = req.body;
         const request = new Request({
             userId: req.user.id,
             resourceId,
+            siteId,
             quantity_requested,
             purpose,
             status: 'pending'
@@ -99,7 +104,7 @@ exports.updateStatus = async (req, res) => {
                 reviewedAt: new Date()
             },
             { new: true }
-        ).populate('userId', 'fullName email').populate('resourceId');
+        ).populate('userId', 'fullName email').populate('resourceId').populate('siteId', 'siteName');
 
         if (!request) {
             return res.status(404).json({ message: 'Request not found' });
@@ -111,6 +116,7 @@ exports.updateStatus = async (req, res) => {
             id: request._id.toString(),
             user: request.userId,
             resource: request.resourceId,
+            site: request.siteId,
             quantity_requested: request.quantity_requested
         };
 

@@ -78,10 +78,12 @@ export const AllRequests = () => {
 
   const filteredRequests = requests.filter((request) => {
     const matchesFilter = filter === 'all' || request.status === filter;
+    const searchLow = searchTerm.toLowerCase();
     const matchesSearch =
       searchTerm === '' ||
-      request.resource?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.user?.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+      request.resource?.name.toLowerCase().includes(searchLow) ||
+      request.user?.fullName.toLowerCase().includes(searchLow) ||
+      request.site?.siteName.toLowerCase().includes(searchLow);
     return matchesFilter && matchesSearch;
   });
 
@@ -138,10 +140,10 @@ export const AllRequests = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">All Requests</h1>
-          <p className="mt-2 text-gray-600">Review and manage resource requests</p>
+      <div className="space-y-6 px-4 md:px-0">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">All Requests</h1>
+          <p className="mt-1 text-sm text-gray-600 font-medium">Review and manage resource requests</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-4">
@@ -152,7 +154,7 @@ export const AllRequests = () => {
               </div>
               <input
                 type="text"
-                placeholder="Search by resource or user..."
+                placeholder="Search by resource, user, or site..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -165,12 +167,12 @@ export const AllRequests = () => {
               <button
                 key={btn.value}
                 onClick={() => setFilter(btn.value)}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === btn.value
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                className={`flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${filter === btn.value
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-100'
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'
                   }`}
               >
-                {btn.label} ({btn.count})
+                {btn.label} <span className="ml-1 opacity-60">({btn.count})</span>
               </button>
             ))}
           </div>
@@ -185,38 +187,46 @@ export const AllRequests = () => {
         ) : (
           <div className="space-y-4">
             {filteredRequests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start flex-1">
-                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+              <div key={request.id} className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start flex-1 min-w-0">
+                    <div className="hidden sm:flex bg-blue-50 p-2.5 rounded-xl mr-4 flex-shrink-0 items-center justify-center border border-blue-100/50">
                       {getStatusIcon(request.status)}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <h3 className="text-lg font-bold text-gray-900 leading-tight">
                           {request.resource?.name || 'Unknown Resource'}
                         </h3>
                         <span
-                          className={`px-2 py-1 text-xs font-semibold rounded border ${getStatusBadge(
+                          className={`px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border shadow-sm ${getStatusBadge(
                             request.status
                           )}`}
                         >
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                          {request.status}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">
-                        Requested by: <strong>{request.user?.fullName || 'Unknown'}</strong>
-                      </p>
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-700">
-                        <span>
-                          <strong>Quantity:</strong> {request.quantity_requested}
-                        </span>
-                        <span>
-                          <strong>Category:</strong> {request.resource?.category}
-                        </span>
-                        <span>
-                          <strong>Date:</strong> {new Date(request.createdAt).toLocaleDateString()}
-                        </span>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-600">
+                          <span className="text-gray-400 font-medium">By:</span> <strong>{request.user?.fullName || 'Unknown'}</strong>
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          <span className="text-gray-400 font-medium">Site:</span> {request.site?.siteName || 'Unknown Site'}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 p-3 bg-gray-50/50 rounded-xl border border-gray-100/50">
+                        <div className="text-xs text-gray-600">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Quantity</span>
+                          <span className="font-bold text-gray-900">{request.quantity_requested}</span>
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Category</span>
+                          <span className="font-bold text-gray-900">{request.resource?.category}</span>
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Date</span>
+                          <span className="font-medium text-gray-700">{new Date(request.createdAt).toLocaleDateString()}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -243,11 +253,11 @@ export const AllRequests = () => {
                   )}
 
                   {request.status === 'pending' && (
-                    <div className="mt-4 flex gap-3">
+                    <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <button
                         onClick={() => handleApprove(request)}
                         disabled={processing}
-                        className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex-1 flex items-center justify-center px-4 py-2.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-green-100"
                       >
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Approve
@@ -255,7 +265,7 @@ export const AllRequests = () => {
                       <button
                         onClick={() => handleRejectClick(request)}
                         disabled={processing}
-                        className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex-1 flex items-center justify-center px-4 py-2.5 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-red-100"
                       >
                         <XCircle className="h-4 w-4 mr-2" />
                         Reject

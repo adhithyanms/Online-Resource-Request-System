@@ -6,10 +6,13 @@ import { Dashboard } from "./pages/user/Dashboard";
 import { ResourceList } from "./pages/user/ResourceList";
 import { CreateRequest } from "./pages/user/CreateRequest";
 import { MyRequests } from "./pages/user/MyRequests";
+import { UserProfile } from "./pages/user/UserProfile";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AllRequests } from "./pages/admin/AllRequests";
 import { ManageResources } from "./pages/admin/ManageResources";
 import { ManageUsers } from "./pages/admin/ManageUsers";
+import { ManageSites } from "./pages/admin/ManageSites";
+import { MySites } from "./pages/user/MySites";
 import { Analytics } from "./pages/admin/Analytics";
 
 function App() {
@@ -55,6 +58,14 @@ function App() {
         }
       />
       <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/my-requests"
         element={
           <ProtectedRoute>
@@ -64,10 +75,26 @@ function App() {
       />
 
       <Route
+        path="/my-sites"
+        element={
+          <ProtectedRoute>
+            <MySites />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin"
         element={
           <ProtectedRoute adminOnly={true}>
             <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/sites"
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <ManageSites />
           </ProtectedRoute>
         }
       />

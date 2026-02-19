@@ -11,6 +11,11 @@ const requestSchema = new mongoose.Schema({
         ref: 'Resource',
         required: true
     },
+    siteId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Site',
+        required: true
+    },
     quantity_requested: {
         type: Number,
         required: true
