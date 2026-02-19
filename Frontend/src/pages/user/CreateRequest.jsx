@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Layout } from '../../components/Layout';
 import { resourceService } from '../../services/resourceService';
 import { requestService } from '../../services/requestService';
-import { Send, AlertCircle, Loader } from 'lucide-react';
+import { siteService } from '../../services/siteService';
+import { Send, AlertCircle, Loader, Building2 } from 'lucide-react';
 
 export const CreateRequest = () => {
   const navigate = useNavigate();
@@ -11,24 +12,35 @@ export const CreateRequest = () => {
   const initialResourceId = location.state?.resourceId || '';
 
   const [resources, setResources] = useState([]);
+  const [mySites, setMySites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [selectedResourceId, setSelectedResourceId] = useState(initialResourceId);
+  const [selectedSiteId, setSelectedSiteId] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [purpose, setPurpose] = useState('');
 
   useEffect(() => {
-    loadResources();
+    loadData();
   }, []);
 
-  const loadResources = async () => {
+  const loadData = async () => {
     try {
-      const data = await resourceService.getAllResources();
-      setResources(data.filter((r) => r.quantity_available > 0));
+      const [resourcesData, sitesData] = await Promise.all([
+        resourceService.getAllResources(),
+        siteService.getMySites()
+      ]);
+      setResources(resourcesData.filter((r) => r.quantity_available > 0));
+      setMySites(sitesData);
+
+      // If user only has one site, select it by default
+      if (sitesData.length === 1) {
+        setSelectedSiteId(sitesData[0]._id);
+      }
     } catch (error) {
-      console.error('Error loading resources:', error);
-      setError('Failed to load resources');
+      console.error('Error loading data:', error);
+      setError('Failed to load resources or sites');
     } finally {
       setLoading(false);
     }
@@ -38,7 +50,7 @@ export const CreateRequest = () => {
     e.preventDefault();
     setError('');
 
-    if (!selectedResourceId || !purpose || !quantity) {
+    if (!selectedResourceId || !selectedSiteId || !purpose || !quantity) {
       setError('Please fill in all fields');
       return;
     }
@@ -51,7 +63,7 @@ export const CreateRequest = () => {
     setSubmitting(true);
 
     try {
-      await requestService.createRequest(selectedResourceId, parseInt(quantity), purpose);
+      await requestService.createRequest(selectedResourceId, selectedSiteId, parseInt(quantity), purpose);
       navigate('/my-requests', { state: { successMessage: 'Request created successfully!' } });
     } catch (error) {
       console.error('Error creating request:', error);
@@ -90,6 +102,34 @@ export const CreateRequest = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
+              <label htmlFor="site" className="block text-sm font-medium text-gray-700 mb-2">
+                Select Site *
+              </label>
+              {mySites.length === 0 ? (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md flex items-center gap-2 text-sm text-yellow-700">
+                  <Building2 className="h-4 w-4" />
+                  No sites assigned to you. You cannot make a request.
+                </div>
+              ) : (
+                <select
+                  id="site"
+                  value={selectedSiteId}
+                  onChange={(e) => setSelectedSiteId(e.target.value)}
+                  disabled={submitting}
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Choose a site...</option>
+                  {mySites.map((site) => (
+                    <option key={site._id} value={site._id}>
+                      {site.siteName}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div>
               <label htmlFor="resource" className="block text-sm font-medium text-gray-700 mb-2">
                 Select Resource *
               </label>
@@ -97,7 +137,7 @@ export const CreateRequest = () => {
                 id="resource"
                 value={selectedResourceId}
                 onChange={(e) => setSelectedResourceId(e.target.value)}
-                disabled={submitting}
+                disabled={submitting || mySites.length === 0}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               >

@@ -70,131 +70,108 @@ export const AdminDashboard = () => {
           <p className="mt-2 text-gray-600">System overview and management</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Total Resources</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalResources}</p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Package className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Total Requests</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalRequests}</p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <FileText className="h-6 w-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Pending Requests</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-2">{stats.pendingRequests}</p>
-              </div>
-              <div className="bg-yellow-100 p-3 rounded-lg">
-                <AlertCircle className="h-6 w-6 text-yellow-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Approved</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">{stats.approvedRequests}</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Rejected</p>
-                <p className="text-3xl font-bold text-red-600 mt-2">{stats.rejectedRequests}</p>
-              </div>
-              <div className="bg-red-100 p-3 rounded-lg">
-                <BarChart3 className="h-6 w-6 text-red-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Requests</h2>
-            <Link to="/admin/requests" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-              View All
-            </Link>
-          </div>
-
-          {recentRequests.length === 0 ? (
-            <p className="text-gray-600 text-center py-8">No requests yet.</p>
-          ) : (
-            <div className="space-y-3">
-              {recentRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{request.resource?.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      {request.user?.fullName} - Quantity: {request.quantityRequested}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-3 py-1 text-xs font-semibold rounded border ${getStatusBadge(
-                      request.status
-                    )}`}
-                  >
-                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                  </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+          {[
+            { label: 'Resources', value: stats.totalResources, icon: Package, color: 'blue' },
+            { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple' },
+            { label: 'Pending', value: stats.pendingRequests, icon: AlertCircle, color: 'yellow' },
+            { label: 'Approved', value: stats.approvedRequests, icon: TrendingUp, color: 'green' },
+            { label: 'Rejected', value: stats.rejectedRequests, icon: BarChart3, color: 'red' },
+          ].map((item, idx) => (
+            <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">{item.label}</p>
+                  <p className={`text-3xl font-bold mt-2 text-${item.color}-600`}>{item.value}</p>
                 </div>
-              ))}
+                <div className={`bg-${item.color}-50 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300`}>
+                  <item.icon className={`h-6 w-6 text-${item.color}-600`} />
+                </div>
+              </div>
             </div>
-          )}
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link
-            to="/admin/requests"
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-6 text-center transition-colors"
-          >
-            <FileText className="h-8 w-8 mx-auto mb-2" />
-            <h3 className="font-semibold">All Requests</h3>
-            <p className="text-sm mt-1 opacity-90">Review and manage requests</p>
-          </Link>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Requests - 2 Columns on Desktop */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-50 bg-gray-50/30">
+                <h2 className="text-lg font-bold text-gray-900">Recent Requests</h2>
+                <Link to="/admin/requests" className="text-blue-600 hover:text-blue-700 text-xs font-bold uppercase tracking-wider">
+                  View All Activity
+                </Link>
+              </div>
 
-          <Link
-            to="/admin/resources"
-            className="bg-green-600 hover:bg-green-700 text-white rounded-lg p-6 text-center transition-colors"
-          >
-            <Package className="h-8 w-8 mx-auto mb-2" />
-            <h3 className="font-semibold">Manage Resources</h3>
-            <p className="text-sm mt-1 opacity-90">Add/edit/delete resources</p>
-          </Link>
+              {recentRequests.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-10 w-10 text-gray-200 mx-auto mb-3" />
+                  <p className="text-gray-400 text-sm font-medium">No recent activity detected.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-50">
+                  {recentRequests.map((request) => (
+                    <div
+                      key={request._id || request.id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-5 hover:bg-gray-50/50 transition-colors group"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{request.resource?.name}</h3>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
+                          <p className="text-xs text-gray-500">
+                            By <span className="font-semibold text-gray-700">{request.user?.fullName}</span>
+                          </p>
+                          <div className="w-1 h-1 bg-gray-300 rounded-full hidden sm:block"></div>
+                          <p className="text-xs text-gray-500">
+                            Site: <span className="font-semibold text-gray-700">{request.site?.siteName || 'N/A'}</span>
+                          </p>
+                          <div className="w-1 h-1 bg-gray-300 rounded-full hidden sm:block"></div>
+                          <p className="text-xs text-gray-500">
+                            Qty: <span className="font-semibold text-gray-700">{request.quantity_requested}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`mt-3 sm:mt-0 inline-flex items-center justify-center px-2.5 py-1 text-[10px] font-bold rounded-full border shadow-sm uppercase tracking-wider ${getStatusBadge(
+                          request.status
+                        )}`}
+                      >
+                        {request.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
-          <Link 
-            to="/admin/analytics"
-            className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-6 text-center transition-colors"
-          >
-            <BarChart3 className="h-8 w-8 mx-auto mb-2" />
-            <h3 className="font-semibold">Analytics</h3>
-            <p className="text-sm mt-1 opacity-90">View reports</p>
-          </Link>
+          {/* Quick Actions - 1 Column on Desktop */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-5">Quick Management</h2>
+              <div className="space-y-3">
+                {[
+                  { to: "/admin/requests", icon: FileText, label: "All Requests", sub: "Review system activity", color: "blue" },
+                  { to: "/admin/resources", icon: Package, label: "Manage Resources", sub: "Inventory & stock", color: "green" },
+                  { to: "/admin/analytics", icon: BarChart3, label: "Analytics", sub: "Performance reports", color: "purple" }
+                ].map((action, idx) => (
+                  <Link
+                    key={idx}
+                    to={action.to}
+                    className={`flex items-center p-4 rounded-xl border border-gray-100 hover:border-${action.color}-200 hover:bg-${action.color}-50/50 transition-all group`}
+                  >
+                    <div className={`bg-${action.color}-50 p-2.5 rounded-lg mr-4 group-hover:bg-white transition-colors`}>
+                      <action.icon className={`h-5 w-5 text-${action.color}-600`} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900 leading-none">{action.label}</p>
+                      <p className="text-[11px] text-gray-500 mt-1">{action.sub}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

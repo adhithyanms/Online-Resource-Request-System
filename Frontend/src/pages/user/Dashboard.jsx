@@ -62,10 +62,12 @@ export const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-2 text-gray-600">Welcome to your resource request dashboard</p>
+      <div className="space-y-6 px-4 md:px-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="mt-1 text-gray-600 font-medium">Welcome to your resource request dashboard</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -131,17 +133,24 @@ export const Dashboard = () => {
           ) : (
             <div className="space-y-3">
               {recentRequests.map((request) => (
-                <div key={request.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{request.resource?.name}</h3>
-                    <p className="text-sm text-gray-600">Quantity: {request.quantityRequested}</p>
+                <div key={request._id || request.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 rounded-xl gap-3 hover:bg-gray-50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 truncate">{request.resource?.name}</h3>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                      <p className="text-xs text-gray-500">
+                        Qty: <span className="font-semibold text-gray-700">{request.quantity_requested || request.quantityRequested}</span>
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Site: <span className="font-semibold text-gray-700">{request.site?.siteName || 'Default'}</span>
+                      </p>
+                    </div>
                   </div>
                   <span
-                    className={`px-3 py-1 text-xs font-semibold rounded border ${getStatusBadge(
+                    className={`inline-flex items-center justify-center px-3 py-1 text-[10px] uppercase tracking-wider font-bold rounded border self-start sm:self-center ${getStatusBadge(
                       request.status
                     )}`}
                   >
-                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                    {request.status}
                   </span>
                 </div>
               ))}

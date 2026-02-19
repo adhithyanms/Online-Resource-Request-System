@@ -138,22 +138,22 @@ export const ManageResources = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 px-4 md:px-0 pb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Manage Resources</h1>
-            <p className="mt-2 text-gray-600">Add, edit, or remove resources</p>
+            <p className="mt-1 text-gray-600 font-medium">Add, edit, or remove resources</p>
           </div>
           <button
             onClick={handleAddNew}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold text-sm shadow-sm"
           >
             <Plus className="h-5 w-5 mr-2" />
             Add Resource
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
@@ -163,7 +163,7 @@ export const ManageResources = () => {
               placeholder="Search resources..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50"
             />
           </div>
         </div>
@@ -186,12 +186,12 @@ export const ManageResources = () => {
             {filteredResources.map((resource) => (
               <div
                 key={resource.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 border border-transparent transition-all duration-300 group"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="bg-blue-100 p-3 rounded-lg">
-                      <Package className="h-6 w-6 text-blue-600" />
+                    <div className="bg-blue-50 p-3 rounded-xl group-hover:bg-blue-600 transition-colors duration-300">
+                      <Package className="h-6 w-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
                     </div>
                     <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
                       {resource.category}

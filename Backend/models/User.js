@@ -5,26 +5,53 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        validate: {
-            validator: function (v) {
-                return /^[a-z]+\.(it|cs|ee|ec|cd|cb|ad|al|fd)(22|23|24|25|26)@bitsathy\.ac\.in$/.test(v) ||
-                    v.toLowerCase() === 'adhithyanshanmugam@gmail.com';
-            },
-            message: props => `${props.value} is not a valid bitsathy email format!`
-        }
+        lowercase: true,
+        trim: true
     },
     password: {
         type: String,
-        required: true
+        required: false,
+        default: null
     },
     fullName: {
         type: String,
-        required: true
+        default: ''
     },
     role: {
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
+    },
+    isAllowed: {
+        type: Boolean,
+        default: false
+    },
+    // Profile fields managed by admin
+    phone: {
+        type: String,
+        default: '',
+        validate: {
+            validator: function (v) {
+                return v === '' || /^\d{10}$/.test(v);
+            },
+            message: props => `${props.value} is not a valid 10-digit phone number!`
+        }
+    },
+    address: {
+        type: String,
+        default: ''
+    },
+    profilePhotoUrl: {
+        type: String,
+        default: ''
+    },
+    aadhaarPhotoUrl: {
+        type: String,
+        default: ''
+    },
+    panCardPhotoUrl: {
+        type: String,
+        default: ''
     }
 }, { timestamps: true });
 

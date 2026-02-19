@@ -11,6 +11,8 @@ import {
   Settings,
   Users,
   BarChart3,
+  User,
+  MapPin,
 } from "lucide-react";
 
 export const Layout = ({ children }) => {
@@ -31,11 +33,14 @@ export const Layout = ({ children }) => {
   const userNavItems = [
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/resources", label: "Resources", icon: Package },
+    { path: "/my-sites", label: "My Sites", icon: MapPin },
     { path: "/my-requests", label: "My Requests", icon: FileText },
+    { path: "/profile", label: "My Profile", icon: User },
   ];
 
   const adminNavItems = [
     { path: "/admin", label: "Admin Dashboard", icon: LayoutDashboard },
+    { path: "/admin/sites", label: "Manage Sites", icon: MapPin },
     { path: "/admin/requests", label: "All Requests", icon: FileText },
     { path: "/admin/resources", label: "Manage Resources", icon: Settings },
     { path: "/admin/analytics", label: "Analytics", icon: BarChart3 },
@@ -71,11 +76,10 @@ export const Layout = ({ children }) => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive(item.path)
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(item.path)
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     <Icon className="h-4 w-4 mr-2" />
                     {item.label}
@@ -129,11 +133,10 @@ export const Layout = ({ children }) => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
-                      isActive(item.path)
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`flex items-center px-4 py-3 rounded-xl text-base font-semibold transition-all ${isActive(item.path)
+                      ? "bg-blue-50 text-blue-700 shadow-sm border border-blue-100/50"
+                      : "text-gray-700 hover:bg-gray-50 active:bg-gray-100"
+                      }`}
                   >
                     <Icon className="h-5 w-5 mr-3" />
                     {item.label}
@@ -164,7 +167,7 @@ export const Layout = ({ children }) => {
         )}
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {children}
       </main>
     </div>
