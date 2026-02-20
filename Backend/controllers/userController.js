@@ -179,7 +179,11 @@ exports.updateMyProfile = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error in updateMyProfile:', error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: error.message });
+        }
+        res.status(500).json({ message: error.message || 'Internal server error' });
     }
 };
 
@@ -232,7 +236,11 @@ exports.updateUserProfile = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error in updateUserProfile:', error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: error.message });
+        }
+        res.status(500).json({ message: error.message || 'Internal server error' });
     }
 };
 
