@@ -5,17 +5,10 @@ const resourceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    description: {
-        type: String,
-        required: true
-    },
-    category: {
-        type: String,
-        required: true
-    },
-    quantityAvailable: {
+    price: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     },
     createdBy: {
         type: String, // userId

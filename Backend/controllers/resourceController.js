@@ -5,8 +5,7 @@ exports.getAllResources = async (req, res) => {
         const resources = await Resource.find().sort({ createdAt: -1 });
         const mappedResources = resources.map(resource => ({
             ...resource.toObject(),
-            id: resource._id.toString(),
-            quantity_available: resource.quantityAvailable
+            id: resource._id.toString()
         }));
         res.status(200).json(mappedResources);
     } catch (error) {
@@ -22,8 +21,7 @@ exports.getResourceById = async (req, res) => {
         }
         const mappedResource = {
             ...resource.toObject(),
-            id: resource._id.toString(),
-            quantity_available: resource.quantityAvailable
+            id: resource._id.toString()
         };
         res.status(200).json(mappedResource);
     } catch (error) {
@@ -39,20 +37,17 @@ exports.createResource = async (req, res) => {
         }
 
         console.log('Creating resource:', req.body);
-        const { name, description, category, quantity_available } = req.body;
+        const { name, price } = req.body;
         const resource = new Resource({
             name,
-            description,
-            category,
-            quantityAvailable: quantity_available,
+            price,
             createdBy: req.user.id
         });
         await resource.save();
 
         const mappedResource = {
             ...resource.toObject(),
-            id: resource._id.toString(),
-            quantity_available: resource.quantityAvailable
+            id: resource._id.toString()
         };
         res.status(201).json(mappedResource);
     } catch (error) {
@@ -69,14 +64,12 @@ exports.updateResource = async (req, res) => {
         }
 
         console.log('Updating resource:', req.params.id, req.body);
-        const { name, description, category, quantity_available } = req.body;
+        const { name, price } = req.body;
         const resource = await Resource.findByIdAndUpdate(
             req.params.id,
             {
                 name,
-                description,
-                category,
-                quantityAvailable: quantity_available
+                price
             },
             { new: true }
         );

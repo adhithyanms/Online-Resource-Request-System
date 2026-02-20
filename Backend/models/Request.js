@@ -6,18 +6,24 @@ const requestSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    resourceId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Resource',
-        required: true
+    items: [{
+        resourceId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Resource',
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true
+        }
+    }],
+    totalCost: {
+        type: Number,
+        default: 0
     },
     siteId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Site',
-        required: true
-    },
-    quantity_requested: {
-        type: Number,
         required: true
     },
     purpose: {

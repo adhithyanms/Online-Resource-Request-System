@@ -45,9 +45,7 @@ export const Layout = ({ children }) => {
     { path: "/admin/resources", label: "Manage Resources", icon: Settings },
     { path: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     // Show Manage Users only to super admin
-    ...(isSuperAdmin
-      ? [{ path: "/admin/users", label: "Manage Users", icon: Users }]
-      : []),
+    { path: "/admin/users", label: "Manage Users", icon: Users },
   ];
 
   const navItems = isAdmin ? adminNavItems : userNavItems;

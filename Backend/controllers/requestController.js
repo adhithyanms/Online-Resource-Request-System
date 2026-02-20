@@ -5,7 +5,7 @@ exports.getAllRequests = async (req, res) => {
     try {
         const requests = await Request.find()
             .populate('userId', 'fullName email')
-            .populate('resourceId')
+            .populate('items.resourceId')
             .populate('siteId', 'siteName siteAddress')
             .sort({ createdAt: -1 });
 
@@ -14,9 +14,7 @@ exports.getAllRequests = async (req, res) => {
             ...item.toObject(),
             id: item._id.toString(),
             user: item.userId,
-            resource: item.resourceId,
-            site: item.siteId,
-            quantity_requested: item.quantity_requested
+            site: item.siteId
         }));
 
         res.status(200).json(mappedRequests);
@@ -28,16 +26,14 @@ exports.getAllRequests = async (req, res) => {
 exports.getMyRequests = async (req, res) => {
     try {
         const requests = await Request.find({ userId: req.user.id })
-            .populate('resourceId')
+            .populate('items.resourceId')
             .populate('siteId', 'siteName')
             .sort({ createdAt: -1 });
 
         const mappedRequests = requests.map(item => ({
             ...item.toObject(),
             id: item._id.toString(),
-            resource: item.resourceId,
-            site: item.siteId,
-            quantity_requested: item.quantity_requested
+            site: item.siteId
         }));
 
         res.status(200).json(mappedRequests);
@@ -48,13 +44,23 @@ exports.getMyRequests = async (req, res) => {
 
 exports.createRequest = async (req, res) => {
     try {
-        const { resourceId, siteId, quantity_requested, purpose } = req.body;
+        const { items, siteId, purpose } = req.body;
+
+        // Calculate total cost (fetched from DB to ensure accuracy)
+        let totalCost = 0;
+        for (const item of items) {
+            const resource = await Resource.findById(item.resourceId);
+            if (resource) {
+                totalCost += (resource.price || 0) * item.quantity;
+            }
+        }
+
         const request = new Request({
             userId: req.user.id,
-            resourceId,
+            items,
             siteId,
-            quantity_requested,
             purpose,
+            totalCost,
             status: 'pending'
         });
         await request.save();
@@ -79,20 +85,9 @@ exports.updateStatus = async (req, res) => {
             return res.status(404).json({ message: 'Request not found' });
         }
 
-        // Logic for approving a request: Reduce quantity
+        // Logic for approving a request: Cost calculation and status update (no stock deduction)
         if (status === 'approved' && currentRequest.status !== 'approved') {
-            const resource = await Resource.findById(currentRequest.resourceId);
-            if (!resource) {
-                return res.status(404).json({ message: 'Resource not found' });
-            }
-
-            if (resource.quantityAvailable < currentRequest.quantity_requested) {
-                return res.status(400).json({ message: 'Insufficient quantity available in stock' });
-            }
-
-            // Reduce quantity
-            resource.quantityAvailable -= currentRequest.quantity_requested;
-            await resource.save();
+            // No stock deduction required as per latest user request
         }
 
         const request = await Request.findByIdAndUpdate(
@@ -104,7 +99,7 @@ exports.updateStatus = async (req, res) => {
                 reviewedAt: new Date()
             },
             { new: true }
-        ).populate('userId', 'fullName email').populate('resourceId').populate('siteId', 'siteName');
+        ).populate('userId', 'fullName email').populate('items.resourceId').populate('siteId', 'siteName');
 
         if (!request) {
             return res.status(404).json({ message: 'Request not found' });
@@ -115,9 +110,7 @@ exports.updateStatus = async (req, res) => {
             ...request.toObject(),
             id: request._id.toString(),
             user: request.userId,
-            resource: request.resourceId,
-            site: request.siteId,
-            quantity_requested: request.quantity_requested
+            site: request.siteId
         };
 
         res.status(200).json(mappedRequest);
