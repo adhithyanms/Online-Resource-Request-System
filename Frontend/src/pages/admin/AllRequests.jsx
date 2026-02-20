@@ -140,7 +140,7 @@ export const AllRequests = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 px-4 md:px-0">
+      <div className="space-y-6">
         <div className="mb-4 sm:mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">All Requests</h1>
           <p className="mt-1 text-sm text-gray-600 font-medium">Review and manage resource requests</p>
