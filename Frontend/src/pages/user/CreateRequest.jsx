@@ -133,12 +133,12 @@ export const CreateRequest = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
           {/* Main Form */}
           <div className="lg:col-span-3 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 space-y-6">
               <div>
-                <label htmlFor="site" className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">
+                <label htmlFor="site" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">
                   Select Site *
                 </label>
                 {mySites.length === 0 ? (
@@ -152,7 +152,7 @@ export const CreateRequest = () => {
                     value={selectedSiteId}
                     onChange={(e) => setSelectedSiteId(e.target.value)}
                     disabled={submitting}
-                    className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                    className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm sm:text-base"
                     required
                   >
                     <option value="">Choose a site...</option>
@@ -166,7 +166,7 @@ export const CreateRequest = () => {
               </div>
 
               <div className="pt-6 border-t border-gray-100">
-                <label className="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-gray-400 mb-4 uppercase tracking-widest">
                   Add Resources
                 </label>
 
@@ -176,7 +176,7 @@ export const CreateRequest = () => {
                     value={selectedResourceId}
                     onChange={(e) => setSelectedResourceId(e.target.value)}
                     disabled={submitting || mySites.length === 0}
-                    className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                    className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm sm:text-base"
                   >
                     <option value="">Choose a resource...</option>
                     {resources.map((resource) => (
@@ -186,7 +186,7 @@ export const CreateRequest = () => {
                     ))}
                   </select>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex-1">
                       <input
                         type="number"
@@ -195,14 +195,14 @@ export const CreateRequest = () => {
                         onChange={(e) => setQuantity(e.target.value)}
                         placeholder="Qty"
                         disabled={submitting || !selectedResourceId}
-                        className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                        className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm sm:text-base"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={handleAddToCart}
                       disabled={!selectedResourceId || submitting}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all font-bold text-sm shadow-sm"
+                      className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all font-bold text-sm shadow-sm active:scale-95"
                     >
                       Add to List
                     </button>
@@ -211,7 +211,7 @@ export const CreateRequest = () => {
               </div>
 
               <div className="pt-6 border-t border-gray-100">
-                <label htmlFor="purpose" className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">
+                <label htmlFor="purpose" className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">
                   Purpose of Request *
                 </label>
                 <textarea
@@ -220,7 +220,7 @@ export const CreateRequest = () => {
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
                   disabled={submitting}
-                  className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                  className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-sm sm:text-base"
                   placeholder="Explain why you need these resources..."
                   required
                 />
@@ -229,7 +229,7 @@ export const CreateRequest = () => {
               <button
                 onClick={handleSubmit}
                 disabled={submitting || cart.length === 0 || !selectedSiteId}
-                className="w-full flex items-center justify-center px-6 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all font-bold shadow-md shadow-blue-100"
+                className="w-full flex items-center justify-center px-6 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all font-bold shadow-md shadow-blue-100 active:scale-95"
               >
                 {submitting ? (
                   <>
@@ -248,14 +248,15 @@ export const CreateRequest = () => {
 
           {/* Cart View */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 sticky top-24">
               <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Package className="h-5 w-5 text-blue-600" />
                 Request List
-                <span className="ml-auto bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                <span className="ml-auto bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">
                   {cart.length}
                 </span>
               </h2>
+
 
               {cart.length === 0 ? (
                 <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-2xl">

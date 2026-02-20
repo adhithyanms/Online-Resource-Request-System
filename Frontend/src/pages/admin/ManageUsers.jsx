@@ -282,31 +282,39 @@ const Badge = ({ label, color }) => (
 // ── User Row ──────────────────────────────────────────────────────────────────
 // ── User Row ──────────────────────────────────────────────────────────────────
 const UserRow = ({ user: u, onSelect, onEdit, onDelete, isSuperAdmin, onRoleChange }) => (
-  <div className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/50 transition-colors cursor-pointer" onClick={() => onSelect(u)}>
+  <div className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-blue-50/50 transition-colors cursor-pointer" onClick={() => onSelect(u)}>
     <Avatar src={u.profilePhotoUrl} name={u.fullName || u.email} />
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-gray-900 truncate">{u.fullName || <span className="text-gray-400 italic">No name</span>}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-semibold text-gray-900 truncate">{u.fullName || <span className="text-gray-400 italic font-normal">No name</span>}</p>
+        {/* Role badge only on mobile if name is long */}
+        <div className="sm:hidden">
+          <Badge label={u.role} color={u.role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'} />
+        </div>
+      </div>
       <p className="text-xs text-gray-500 truncate">{u.email}</p>
-      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-        <Badge label={u.role} color={u.role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'} />
+      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+        <div className="hidden sm:block">
+          <Badge label={u.role} color={u.role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'} />
+        </div>
         <Badge label={u.isAllowed ? 'Active' : 'Inactive'} color={u.isAllowed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'} />
-        {u.phone && <span className="text-xs text-gray-400">{u.phone}</span>}
+        {u.phone && <span className="text-[10px] sm:text-xs text-gray-400 font-medium flex items-center gap-1"><Phone className="h-2.5 w-2.5" /> {u.phone}</span>}
       </div>
     </div>
-    <div className="flex items-center gap-1.5 flex-shrink-0">
+    <div className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0">
       {isSuperAdmin && u.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
         <button onClick={(e) => { e.stopPropagation(); onRoleChange(u, u.role === 'admin' ? 'user' : 'admin'); }}
-          className={`p-1.5 rounded-lg transition-colors ${u.role === 'admin' ? 'text-gray-500 hover:bg-gray-100' : 'text-blue-600 hover:bg-blue-50'}`}
+          className={`p-1.5 sm:p-2 rounded-lg transition-colors ${u.role === 'admin' ? 'text-gray-500 hover:bg-gray-100' : 'text-blue-600 hover:bg-blue-50'}`}
           title={u.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}>
           <Shield className="h-4 w-4" />
         </button>
       )}
       <button onClick={(e) => { e.stopPropagation(); onEdit(); }}
-        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit profile">
+        className="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit profile">
         <Edit2 className="h-4 w-4" />
       </button>
       <button onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete user">
+        className="p-1.5 sm:p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete user">
         <Trash2 className="h-4 w-4" />
       </button>
     </div>
