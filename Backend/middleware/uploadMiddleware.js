@@ -51,4 +51,4 @@ const uploadProfileDocs = upload.fields([
     { name: 'panCardPhoto', maxCount: 1 }
 ]);
 
-module.exports = { uploadProfileDocs };
+module.exports = { uploadProfileDocs, uploadsDir };

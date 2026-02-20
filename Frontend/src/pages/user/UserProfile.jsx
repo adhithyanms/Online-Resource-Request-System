@@ -19,27 +19,79 @@ const PhotoField = ({ label, currentUrl, fieldName, onChange, icon: Icon }) => {
     const inputRef = useRef();
     const [preview, setPreview] = useState(null);
 
+    useEffect(() => {
+        return () => {
+            if (preview) URL.revokeObjectURL(preview);
+        };
+    }, [preview]);
+
     const handleFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        setPreview(URL.createObjectURL(file));
+        if (preview) URL.revokeObjectURL(preview);
+        const url = URL.createObjectURL(file);
+        setPreview(url);
         onChange(fieldName, file);
+        // Reset input so choosing same file again triggers onChange
+        e.target.value = '';
     };
 
+    const clearSelection = () => {
+        if (preview) URL.revokeObjectURL(preview);
+        setPreview(null);
+        onChange(fieldName, null);
+    };
+
+    const hasImage = preview || currentUrl;
+
     return (
-        <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600 flex items-center gap-1">
-                <Icon className="h-3.5 w-3.5 text-gray-400" /> {label}
+        <div className="space-y-1.5 p-3 bg-gray-50/50 rounded-xl border border-gray-100 flex flex-col h-full">
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                <Icon className="h-3 w-3" /> {label}
             </label>
-            {(preview || currentUrl) && (
-                <img src={preview || photoUrl(currentUrl)} alt={label}
-                    className="h-20 w-auto rounded-lg border border-gray-200 object-contain bg-gray-50" />
-            )}
-            <button type="button" onClick={() => inputRef.current?.click()}
-                className="text-xs text-blue-600 hover:text-blue-800 underline">
-                {currentUrl || preview ? 'Change' : 'Upload'}
+
+            <div className="flex-1 flex flex-col justify-center items-center gap-2 min-h-[90px]">
+                {hasImage ? (
+                    <div className="relative group w-full">
+                        <img
+                            src={preview || photoUrl(currentUrl)}
+                            alt={label}
+                            className="h-20 w-full rounded-lg border border-gray-200 object-contain bg-white transition-opacity group-hover:opacity-75"
+                        />
+                        {preview && (
+                            <button
+                                type="button"
+                                onClick={clearSelection}
+                                className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors"
+                                title="Clear selection"
+                            >
+                                <X className="h-3 w-3" />
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-2 text-gray-300">
+                        <Image className="h-8 w-8 mb-1 opacity-20" />
+                        <span className="text-[10px] font-medium italic">No file</span>
+                    </div>
+                )}
+            </div>
+
+            <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className={`w-full text-[11px] font-bold py-1.5 rounded-lg transition-all ${hasImage ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' : 'text-gray-500 bg-gray-100 hover:bg-gray-200'
+                    }`}
+            >
+                {hasImage ? 'Change' : 'Upload'}
             </button>
-            <input ref={inputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFile} />
+            <input
+                ref={inputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                className="hidden"
+                onChange={handleFile}
+            />
         </div>
     );
 };

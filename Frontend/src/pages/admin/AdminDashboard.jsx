@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
 import { resourceService } from '../../services/resourceService';
-import { BarChart3, Package, FileText, TrendingUp, AlertCircle } from 'lucide-react';
+import { siteService } from '../../services/siteService';
+import { BarChart3, Package, FileText, TrendingUp, AlertCircle, MapPin } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalResources: 0,
     totalRequests: 0,
+    totalSites: 0,
     pendingRequests: 0,
     approvedRequests: 0,
     rejectedRequests: 0,
@@ -22,14 +24,16 @@ export const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [resources, requests] = await Promise.all([
+      const [resources, requests, sites] = await Promise.all([
         resourceService.getAllResources(),
         requestService.getAllRequests(),
+        siteService.getAllSites(),
       ]);
 
       setStats({
         totalResources: resources.length,
         totalRequests: requests.length,
+        totalSites: sites.length,
         pendingRequests: requests.filter((r) => r.status === 'pending').length,
         approvedRequests: requests.filter((r) => r.status === 'approved').length,
         rejectedRequests: requests.filter((r) => r.status === 'rejected').length,
@@ -70,15 +74,16 @@ export const AdminDashboard = () => {
           <p className="mt-2 text-gray-600">System overview and management</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {[
-            { label: 'Resources', value: stats.totalResources, icon: Package, color: 'blue' },
-            { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple' },
-            { label: 'Pending', value: stats.pendingRequests, icon: AlertCircle, color: 'yellow' },
-            { label: 'Approved', value: stats.approvedRequests, icon: TrendingUp, color: 'green' },
-            { label: 'Rejected', value: stats.rejectedRequests, icon: BarChart3, color: 'red' },
+            { label: 'Resources', value: stats.totalResources, icon: Package, color: 'blue', to: '/admin/resources' },
+            { label: 'Total Sites', value: stats.totalSites, icon: MapPin, color: 'red', to: '/admin/sites' },
+            { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple', to: '/admin/requests' },
+            { label: 'Pending', value: stats.pendingRequests, icon: AlertCircle, color: 'yellow', to: '/admin/requests' },
+            { label: 'Approved', value: stats.approvedRequests, icon: TrendingUp, color: 'green', to: '/admin/requests' },
+            { label: 'Rejected', value: stats.rejectedRequests, icon: BarChart3, color: 'red', to: '/admin/requests' },
           ].map((item, idx) => (
-            <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 group">
+            <Link key={idx} to={item.to} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 group hover:-translate-y-1">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">{item.label}</p>
@@ -88,7 +93,7 @@ export const AdminDashboard = () => {
                   <item.icon className={`h-6 w-6 text-${item.color}-600`} />
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

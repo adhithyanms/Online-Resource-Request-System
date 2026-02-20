@@ -18,5 +18,5 @@ const resourceSchema = new mongoose.Schema({
 
 
 
-// ggg
+
 module.exports = mongoose.model('Resource', resourceSchema, 'resources');
