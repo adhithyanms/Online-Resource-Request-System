@@ -8,7 +8,6 @@ const getAuthHeader = () => {
 };
 
 export const userService = {
-    // Get all users (admin)
     getAllUsers: async () => {
         try {
             const response = await axios.get(`${API_URL}/users`, {
@@ -20,25 +19,9 @@ export const userService = {
         }
     },
 
-    // Add user by email (admin)
     addUser: async (email) => {
         try {
-            const response = await axios.post(
-                `${API_URL}/users`,
-                { email },
-                { headers: getAuthHeader() }
-            );
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || error;
-        }
-    },
-
-    // Search users by name or email (admin)
-    searchUsers: async (query) => {
-        try {
-            const response = await axios.get(`${API_URL}/users/search`, {
-                params: { q: query },
+            const response = await axios.post(`${API_URL}/users/add`, { email }, {
                 headers: getAuthHeader()
             });
             return response.data;
@@ -47,7 +30,17 @@ export const userService = {
         }
     },
 
-    // Get all requests for a specific user (admin)
+    searchUsers: async (query) => {
+        try {
+            const response = await axios.get(`${API_URL}/users/search?q=${query}`, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
     getUserRequests: async (userId) => {
         try {
             const response = await axios.get(`${API_URL}/users/${userId}/requests`, {
@@ -59,29 +52,23 @@ export const userService = {
         }
     },
 
-    // Update a user's profile (admin) — accepts FormData for file uploads
     updateUserProfile: async (userId, formData) => {
         try {
-            const response = await axios.put(
-                `${API_URL}/users/${userId}/profile`,
-                formData,
-                {
-                    headers: {
-                        ...getAuthHeader(),
-                        'Content-Type': 'multipart/form-data'
-                    }
+            const response = await axios.put(`${API_URL}/users/${userId}/profile`, formData, {
+                headers: {
+                    ...getAuthHeader(),
+                    'Content-Type': 'multipart/form-data'
                 }
-            );
+            });
             return response.data;
         } catch (error) {
             throw error.response?.data || error;
         }
     },
 
-    // Get current user's own profile (user)
-    getMyProfile: async () => {
+    updateUserRole: async (userId, role) => {
         try {
-            const response = await axios.get(`${API_URL}/users/me`, {
+            const response = await axios.put(`${API_URL}/users/${userId}/role`, { role }, {
                 headers: getAuthHeader()
             });
             return response.data;
@@ -90,60 +77,11 @@ export const userService = {
         }
     },
 
-    // Update current user's own profile (user) — FormData for file uploads
-    updateMyProfile: async (formData) => {
-        try {
-            const response = await axios.put(
-                `${API_URL}/users/me/profile`,
-                formData,
-                {
-                    headers: {
-                        ...getAuthHeader(),
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
-            );
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || error;
-        }
-    },
-
-    // Update role by email (super admin)
-    updateRoleByEmail: async (email, role) => {
-        try {
-            const response = await axios.put(
-                `${API_URL}/users/role-by-email`,
-                { email: email.trim(), role },
-                { headers: getAuthHeader() }
-            );
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || error;
-        }
-    },
-
-    // Update role by ID (super admin)
-    updateUserRole: async (userId, role) => {
-        try {
-            const response = await axios.put(
-                `${API_URL}/users/${userId}/role`,
-                { role },
-                { headers: getAuthHeader() }
-            );
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || error;
-        }
-    },
-
-    // Delete user (admin)
     deleteUser: async (userId) => {
         try {
-            const response = await axios.delete(
-                `${API_URL}/users/${userId}`,
-                { headers: getAuthHeader() }
-            );
+            const response = await axios.delete(`${API_URL}/users/${userId}`, {
+                headers: getAuthHeader()
+            });
             return response.data;
         } catch (error) {
             throw error.response?.data || error;

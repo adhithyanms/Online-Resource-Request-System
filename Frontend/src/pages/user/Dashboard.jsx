@@ -70,54 +70,25 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Available Resources</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalResources}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {[
+            { label: 'Available Resources', value: stats.totalResources, icon: Package, color: 'blue', to: '/resources' },
+            { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple', to: '/my-requests' },
+            { label: 'Pending Requests', value: stats.pendingRequests, icon: TrendingUp, color: 'yellow', to: '/my-requests' },
+            { label: 'Approved Requests', value: stats.approvedRequests, icon: BarChart3, color: 'green', to: '/my-requests' },
+          ].map((item, idx) => (
+            <Link key={idx} to={item.to} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 group hover:-translate-y-1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">{item.label}</p>
+                  <p className={`text-3xl font-bold mt-2 text-${item.color === 'yellow' ? 'yellow-600' : item.color === 'green' ? 'green-600' : 'gray-900'}`}>{item.value}</p>
+                </div>
+                <div className={`bg-${item.color}-50 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300`}>
+                  <item.icon className={`h-6 w-6 text-${item.color}-600`} />
+                </div>
               </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Package className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Total Requests</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalRequests}</p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <FileText className="h-6 w-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Pending Requests</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-2">{stats.pendingRequests}</p>
-              </div>
-              <div className="bg-yellow-100 p-3 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-yellow-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Approved Requests</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">{stats.approvedRequests}</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <BarChart3 className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </div>
+            </Link>
+          ))}
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">

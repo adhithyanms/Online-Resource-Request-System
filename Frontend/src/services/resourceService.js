@@ -1,24 +1,54 @@
-import { api } from './api';
+import axios from 'axios';
 
-export const resourceService = {
-  getAllResources: async () => {
-    return api.get('/resources');
-  },
+const API_URL = import.meta.env.VITE_API_URL;
 
-  getResourceById: async (id) => {
-    return api.get(`/resources/${id}`);
-  },
-
-  createResource: async (formData) => {
-    return api.post('/resources', formData);
-  },
-
-  updateResource: async (id, formData) => {
-    return api.put(`/resources/${id}`, formData);
-  },
-
-  deleteResource: async (id) => {
-    return api.delete(`/resources/${id}`);
-  },
+const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+export const resourceService = {
+    getAllResources: async () => {
+        try {
+            const response = await axios.get(`${API_URL}/resources`, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    createResource: async (resourceData) => {
+        try {
+            const response = await axios.post(`${API_URL}/resources`, resourceData, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    updateResource: async (id, resourceData) => {
+        try {
+            const response = await axios.put(`${API_URL}/resources/${id}`, resourceData, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    deleteResource: async (id) => {
+        try {
+            const response = await axios.delete(`${API_URL}/resources/${id}`, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    }
+};

@@ -8,6 +8,7 @@ const resourceRoutes = require('./routes/resourceRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const userRoutes = require('./routes/userRoutes');
 const siteRoutes = require('./routes/siteRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const app = express();
 
@@ -15,8 +16,8 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Serve uploaded files (profile photos, documents)
-const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const { uploadsDir } = require('./middleware/uploadMiddleware');
+app.use('/uploads', express.static(uploadsDir));
 
 
 app.use('/auth', authRoutes);
@@ -24,6 +25,7 @@ app.use('/resources', resourceRoutes);
 app.use('/requests', requestRoutes);
 app.use('/users', userRoutes);
 app.use('/sites', siteRoutes);
+app.use('/analytics', analyticsRoutes);
 
 app.get('/', (req, res) => {
   res.send("we are live");

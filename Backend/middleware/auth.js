@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
+const verifyToken = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -18,3 +18,14 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
+const isAdmin = (req, res, next) => {
+  if (req.user && (req.user.role === 'admin' || req.user.email === 'adhithyanshanmugam@gmail.com')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied: Admin role required' });
+  }
+};
+
+module.exports = { verifyToken, isAdmin };
+
