@@ -135,11 +135,10 @@ export const Dashboard = () => {
               {recentRequests.map((request) => (
                 <div key={request._id || request.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 rounded-xl gap-3 hover:bg-gray-50 transition-colors">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 truncate">{request.resource?.name}</h3>
+                    <h3 className="font-bold text-gray-900 truncate">
+                      Request for {request.items?.length || 0} items
+                    </h3>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
-                      <p className="text-xs text-gray-500">
-                        Qty: <span className="font-semibold text-gray-700">{request.quantity_requested || request.quantityRequested}</span>
-                      </p>
                       <p className="text-xs text-gray-500">
                         Site: <span className="font-semibold text-gray-700">{request.site?.siteName || 'Default'}</span>
                       </p>

@@ -9,7 +9,6 @@ export const ResourceList = () => {
   const [filteredResources, setFilteredResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +17,7 @@ export const ResourceList = () => {
 
   useEffect(() => {
     filterResources();
-  }, [searchTerm, selectedCategory, resources]);
+  }, [searchTerm, resources]);
 
   const loadResources = async () => {
     try {
@@ -38,19 +37,14 @@ export const ResourceList = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (resource) =>
-          resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          resource.description.toLowerCase().includes(searchTerm.toLowerCase())
+          resource.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
-
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter((resource) => resource.category === selectedCategory);
     }
 
     setFilteredResources(filtered);
   };
 
-  const categories = ['all', ...Array.from(new Set(resources.map((r) => r.category)))];
+  // const categories = ['all', ...Array.from(new Set(resources.map((r) => r.category)))];
 
   const handleRequestResource = (resourceId) => {
     navigate('/create-request', { state: { resourceId } });
@@ -77,31 +71,17 @@ export const ResourceList = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search resources..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50"
-              />
+          <div className="relative w-full">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
             </div>
-
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50 text-sm font-medium"
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category === 'all' ? 'All Categories' : category}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              placeholder="Search resources by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50 font-medium"
+            />
           </div>
         </div>
 
@@ -123,35 +103,15 @@ export const ResourceList = () => {
                     <div className="bg-blue-100 p-3 rounded-lg">
                       <Package className="h-6 w-6 text-blue-600" />
                     </div>
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
-                      {resource.category}
-                    </span>
                   </div>
 
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{resource.name}</h3>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {resource.description || 'No description available'}
-                  </p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">{resource.name}</h3>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-xs text-gray-500">Available Quantity</p>
-                      <p className="text-lg font-bold text-gray-900">{resource.quantity_available}</p>
-                    </div>
-                    {resource.quantity_available > 0 ? (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">
-                        In Stock
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded">
-                        Out of Stock
-                      </span>
-                    )}
-                  </div>
+                  {/* Quantity and Availability removed */}
 
                   <button
                     onClick={() => handleRequestResource(resource.id)}
-                    disabled={resource.quantity_available === 0}
+                    disabled={false}
                     className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
                     Request Resource

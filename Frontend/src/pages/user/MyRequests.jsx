@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus, Package } from 'lucide-react';
 
 export const MyRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -135,9 +135,9 @@ export const MyRequests = () => {
                     {getStatusIcon(request.status)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
                       <h3 className="text-lg font-bold text-gray-900 truncate">
-                        {request.resource?.name || 'Unknown Resource'}
+                        Request for {request.items?.length || 0} items
                       </h3>
                       <span
                         className={`inline-flex px-2 py-0.5 text-[10px] font-bold rounded border uppercase tracking-widest w-fit ${getStatusBadge(
@@ -147,19 +147,25 @@ export const MyRequests = () => {
                         {request.status}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{request.resource?.description}</p>
+
+                    <div className="space-y-2 mb-4">
+                      {request.items?.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg border border-gray-100">
+                          <Package className="h-3.5 w-3.5 text-blue-500" />
+                          <span className="font-bold">{item.resourceId?.name || 'Unknown resource'}</span>
+                          <span className="text-gray-400 font-medium">Qty: {item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
                       <div className="flex items-center gap-2 text-gray-600">
                         <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Site</strong>
                         <span className="truncate">{request.site?.siteName || 'Unknown Site'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
-                        <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Qty</strong>
-                        <span>{request.quantity_requested} units</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Category</strong>
-                        <span>{request.resource?.category}</span>
+                        <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Items</strong>
+                        <span>{request.items?.length || 0} types</span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <strong className="text-gray-400 font-bold uppercase tracking-wider text-[10px] w-16">Date</strong>

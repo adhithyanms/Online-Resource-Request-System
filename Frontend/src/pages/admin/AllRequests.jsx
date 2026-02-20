@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package } from 'lucide-react';
 
 export const AllRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -29,7 +29,7 @@ export const AllRequests = () => {
   };
 
   const handleApprove = async (request) => {
-    if (!confirm(`Approve request for ${request.resource?.name || 'this resource'}?`)) return;
+    if (!confirm(`Approve this request with ${request.items?.length || 0} items?`)) return;
 
     setProcessing(true);
     try {
@@ -196,7 +196,7 @@ export const AllRequests = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1.5">
                         <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                          {request.resource?.name || 'Unknown Resource'}
+                          Request for {request.items?.length || 0} items
                         </h3>
                         <span
                           className={`px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border shadow-sm ${getStatusBadge(
@@ -205,6 +205,15 @@ export const AllRequests = () => {
                         >
                           {request.status}
                         </span>
+                      </div>
+                      <div className="space-y-2 my-3">
+                        {request.items?.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 bg-blue-50/30 p-2 rounded-lg border border-blue-100/50">
+                            <Package className="h-3.5 w-3.5 text-blue-500" />
+                            <span className="font-bold">{item.resourceId?.name || 'Unknown resource'}</span>
+                            <span className="text-gray-400 font-medium">Qty: {item.quantity}</span>
+                          </div>
+                        ))}
                       </div>
                       <div className="space-y-1">
                         <p className="text-sm text-gray-600">
@@ -216,12 +225,8 @@ export const AllRequests = () => {
                       </div>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 p-3 bg-gray-50/50 rounded-xl border border-gray-100/50">
                         <div className="text-xs text-gray-600">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Quantity</span>
-                          <span className="font-bold text-gray-900">{request.quantity_requested}</span>
-                        </div>
-                        <div className="text-xs text-gray-600">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Category</span>
-                          <span className="font-bold text-gray-900">{request.resource?.category}</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Total Cost</span>
+                          <span className="font-bold text-blue-600">₹{request.totalCost || 0}</span>
                         </div>
                         <div className="text-xs text-gray-600">
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Date</span>
@@ -293,8 +298,7 @@ export const AllRequests = () => {
             </div>
 
             <p className="text-sm text-gray-600 mb-4">
-              You are rejecting the request for <strong>{selectedRequest?.resource?.name}</strong> by{' '}
-              <strong>{selectedRequest?.user?.fullName}</strong>
+              You are rejecting the request by <strong>{selectedRequest?.user?.fullName}</strong> for <strong>{selectedRequest?.items?.length} items</strong>.
             </p>
 
             <div className="mb-4">

@@ -5,7 +5,7 @@ import { userService } from '../../services/userService';
 import {
   Users, Search, UserPlus, Edit2, Trash2,
   AlertCircle, CheckCircle, Save, X, Image, FileText,
-  Phone, MapPin, Eye, ArrowLeft, Clock, CheckCircle2, XCircle, Package
+  Phone, MapPin, Eye, ArrowLeft, Clock, CheckCircle2, XCircle, Package, Shield
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
@@ -221,6 +221,59 @@ const DeleteConfirmModal = ({ user, onClose, onDeleted }) => {
   );
 };
 
+// ── Role Confirm Modal ────────────────────────────────────────────────────────
+const RoleConfirmModal = ({ user, newRole, onClose, onConfirmed }) => {
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleUpdate = async () => {
+    setUpdating(true);
+    setError('');
+    try {
+      await userService.updateUserRole(user._id, newRole);
+      onConfirmed();
+    } catch (err) {
+      setError(err?.message || 'Failed to update role');
+      setUpdating(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${newRole === 'admin' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+            <Shield className={`h-5 w-5 ${newRole === 'admin' ? 'text-blue-600' : 'text-gray-600'}`} />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">{newRole === 'admin' ? 'Promote to Admin' : 'Demote to User'}</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Change role for {user.email}</p>
+          </div>
+        </div>
+        <p className="text-sm text-gray-600 mb-4">
+          Are you sure you want to change this user's role to <span className="font-semibold text-gray-900 uppercase">{newRole}</span>?
+        </p>
+        {error && (
+          <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs mb-3">
+            <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" /> {error}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <button onClick={onClose}
+            className="flex-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 text-sm transition-colors">
+            Cancel
+          </button>
+          <button onClick={handleUpdate} disabled={updating}
+            className={`flex-1 px-3 py-2 text-white rounded-lg disabled:opacity-50 text-sm flex items-center justify-center gap-1.5 transition-colors ${newRole === 'admin' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 hover:bg-gray-700'}`}>
+            {updating ? <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Shield className="h-3.5 w-3.5" />}
+            {updating ? 'Updating...' : 'Confirm'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ── Status Badge ──────────────────────────────────────────────────────────────
 const Badge = ({ label, color }) => (
   <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${color}`}>{label}</span>
@@ -228,7 +281,7 @@ const Badge = ({ label, color }) => (
 
 // ── User Row ──────────────────────────────────────────────────────────────────
 // ── User Row ──────────────────────────────────────────────────────────────────
-const UserRow = ({ user: u, onSelect, onEdit, onDelete }) => (
+const UserRow = ({ user: u, onSelect, onEdit, onDelete, isSuperAdmin, onRoleChange }) => (
   <div className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/50 transition-colors cursor-pointer" onClick={() => onSelect(u)}>
     <Avatar src={u.profilePhotoUrl} name={u.fullName || u.email} />
     <div className="flex-1 min-w-0">
@@ -241,6 +294,13 @@ const UserRow = ({ user: u, onSelect, onEdit, onDelete }) => (
       </div>
     </div>
     <div className="flex items-center gap-1.5 flex-shrink-0">
+      {isSuperAdmin && u.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
+        <button onClick={(e) => { e.stopPropagation(); onRoleChange(u, u.role === 'admin' ? 'user' : 'admin'); }}
+          className={`p-1.5 rounded-lg transition-colors ${u.role === 'admin' ? 'text-gray-500 hover:bg-gray-100' : 'text-blue-600 hover:bg-blue-50'}`}
+          title={u.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}>
+          <Shield className="h-4 w-4" />
+        </button>
+      )}
       <button onClick={(e) => { e.stopPropagation(); onEdit(); }}
         className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit profile">
         <Edit2 className="h-4 w-4" />
@@ -255,13 +315,14 @@ const UserRow = ({ user: u, onSelect, onEdit, onDelete }) => (
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export const ManageUsers = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const isSuperAdmin = user?.email?.toLowerCase() === 'adhithyanshanmugam@gmail.com';
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState(null);
   const [deleteUser, setDeleteUser] = useState(null);
+  const [roleChange, setRoleChange] = useState(null); // { user, newRole }
 
   const [addEmail, setAddEmail] = useState('');
   const [addLoading, setAddLoading] = useState(false);
@@ -281,9 +342,9 @@ export const ManageUsers = () => {
   const filtered = users;
 
   useEffect(() => {
-    if (isSuperAdmin) loadUsers();
+    if (isAdmin || isSuperAdmin) loadUsers();
     else setLoading(false);
-  }, []);
+  }, [isAdmin, isSuperAdmin]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -358,6 +419,15 @@ export const ManageUsers = () => {
     if (selectedUser) setSelectedUser(null);
   };
 
+  const handleRoleChanged = () => {
+    setRoleChange(null);
+    loadUsers();
+    if (selectedUser) {
+      const updatedUser = users.find(u => u._id === selectedUser._id);
+      if (updatedUser) setSelectedUser({ ...selectedUser, role: roleChange.newRole });
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -368,14 +438,14 @@ export const ManageUsers = () => {
     );
   }
 
-  if (!isSuperAdmin) {
+  if (!isAdmin && !isSuperAdmin) {
     return (
       <Layout>
         <div className="max-w-xl mx-auto bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-6 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
           <div>
             <h2 className="font-semibold">Access Restricted</h2>
-            <p className="text-sm mt-1">Only the super admin can manage users.</p>
+            <p className="text-sm mt-1">Only admins can manage users.</p>
           </div>
         </div>
       </Layout>
@@ -386,6 +456,7 @@ export const ManageUsers = () => {
     <Layout>
       {editUser && <EditProfileModal user={editUser} onClose={() => setEditUser(null)} onSaved={handleEditSaved} />}
       {deleteUser && <DeleteConfirmModal user={deleteUser} onClose={() => setDeleteUser(null)} onDeleted={handleDeleted} />}
+      {roleChange && <RoleConfirmModal user={roleChange.user} newRole={roleChange.newRole} onClose={() => setRoleChange(null)} onConfirmed={handleRoleChanged} />}
 
       <div className="space-y-5 max-w-3xl mx-auto px-4 sm:px-0">
         <div>
@@ -464,6 +535,13 @@ export const ManageUsers = () => {
                 </div>
               </div>
               <div className="flex gap-1.5">
+                {isSuperAdmin && selectedUser.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
+                  <button onClick={() => setRoleChange({ user: selectedUser, newRole: selectedUser.role === 'admin' ? 'user' : 'admin' })}
+                    className={`p-1.5 rounded-lg transition-colors ${selectedUser.role === 'admin' ? 'text-gray-500 hover:bg-gray-100' : 'text-blue-600 hover:bg-blue-100'}`}
+                    title={selectedUser.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}>
+                    <Shield className="h-4 w-4" />
+                  </button>
+                )}
                 <button onClick={() => setEditUser(selectedUser)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Edit"><Edit2 className="h-4 w-4" /></button>
                 <button onClick={() => setDeleteUser(selectedUser)} className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
               </div>
@@ -554,7 +632,15 @@ export const ManageUsers = () => {
           ) : (
             <div className="divide-y divide-gray-50">
               {filtered.map(u => (
-                <UserRow key={u._id} user={u} onSelect={handleSelectUser} onEdit={() => setEditUser(u)} onDelete={() => setDeleteUser(u)} />
+                <UserRow
+                  key={u._id}
+                  user={u}
+                  onSelect={handleSelectUser}
+                  onEdit={() => setEditUser(u)}
+                  onDelete={() => setDeleteUser(u)}
+                  isSuperAdmin={isSuperAdmin}
+                  onRoleChange={(user, newRole) => setRoleChange({ user, newRole })}
+                />
               ))}
             </div>
           )}
