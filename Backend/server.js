@@ -15,10 +15,30 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
+const mongoURI = process.env.MONGODB_URI;
+
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    const db = await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000,
+    });
+    isConnected = !!db.connections[0].readyState;
+    console.log(`Connected to MongoDB : ${mongoose.connection.name}`);
+  } catch (error) {
+    console.error('Database connection error:', error);
+  }
+};
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 // Serve uploaded files (profile photos, documents)
 const { uploadsDir } = require('./middleware/uploadMiddleware');
 app.use('/uploads', express.static(uploadsDir));
-
 
 app.use('/auth', authRoutes);
 app.use('/resources', resourceRoutes);
@@ -33,15 +53,6 @@ app.get('/', (req, res) => {
 
 
 
-const mongoURI = process.env.MONGODB_URI;
-
-mongoose.connect(mongoURI)
-  .then(() => {
-    console.log(`Connected to MongoDB : ${mongoose.connection.name}`);
-  })
-  .catch(err => {
-    console.error('Database connection error:', err);
-  });
 
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
