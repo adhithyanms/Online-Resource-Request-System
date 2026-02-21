@@ -2,15 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
-import { resourceService } from '../../services/resourceService';
+import { siteService } from '../../services/siteService';
 import { BarChart3, MapPin, FileText, TrendingUp } from 'lucide-react';
 
 export const Dashboard = () => {
   const [stats, setStats] = useState({
-    totalResources: 0,
+    totalSites: 0,
     totalRequests: 0,
     pendingRequests: 0,
-    approvedRequests: 0,
   });
   const [recentRequests, setRecentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,16 +20,15 @@ export const Dashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [resources, requests] = await Promise.all([
-        resourceService.getAllResources(),
+      const [sites, requests] = await Promise.all([
+        siteService.getMySites(),
         requestService.getMyRequests(),
       ]);
 
       setStats({
-        totalResources: resources.length,
+        totalSites: sites.length,
         totalRequests: requests.length,
         pendingRequests: requests.filter((r) => r.status === 'pending').length,
-        approvedRequests: requests.filter((r) => r.status === 'approved').length,
       });
 
       setRecentRequests(requests.slice(0, 5));
@@ -70,11 +68,11 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {[
+            { label: 'Total Sites Assigned', value: stats.totalSites, icon: MapPin, color: 'blue', to: '/my-sites' },
             { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple', to: '/my-requests' },
             { label: 'Pending Requests', value: stats.pendingRequests, icon: TrendingUp, color: 'yellow', to: '/my-requests' },
-            { label: 'Approved Requests', value: stats.approvedRequests, icon: BarChart3, color: 'green', to: '/my-requests' },
           ].map((item, idx) => (
             <Link key={idx} to={item.to} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 group hover:-translate-y-1">
               <div className="flex items-center justify-between">

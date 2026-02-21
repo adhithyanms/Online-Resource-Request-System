@@ -13,8 +13,6 @@ export const AdminDashboard = () => {
     totalRequests: 0,
     totalSites: 0,
     pendingRequests: 0,
-    approvedRequests: 0,
-    rejectedRequests: 0,
     dailyCost: 0,
   });
   const [recentRequests, setRecentRequests] = useState([]);
@@ -41,9 +39,7 @@ export const AdminDashboard = () => {
         totalRequests: requests.length,
         totalSites: sites.length,
         pendingRequests: requests.filter((r) => r.status === 'pending').length,
-        approvedRequests: requests.filter((r) => r.status === 'approved').length,
-        rejectedRequests: requests.filter((r) => r.status === 'rejected').length,
-        dailyCost: todayAnalytics.summary.totalCost || 0,
+        dailyCost: todayAnalytics.summary.totalApprovedCost || 0,
       });
 
       setRecentRequests(requests.slice(0, 5));
