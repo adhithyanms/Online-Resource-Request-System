@@ -125,7 +125,12 @@ export const ManageResources = () => {
       <div className="space-y-6 pb-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manage Resources</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-gray-900">Manage Resources</h1>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-bold rounded-full">
+                {resources.length} Total
+              </span>
+            </div>
             <p className="mt-1 text-gray-600 font-medium">Add, edit, or remove resources</p>
           </div>
           <button
