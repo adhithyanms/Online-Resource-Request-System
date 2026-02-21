@@ -42,14 +42,6 @@ function App() {
         }
       />
       <Route
-        path="/resources"
-        element={
-          <ProtectedRoute>
-            <ResourceList />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/create-request"
         element={
           <ProtectedRoute>

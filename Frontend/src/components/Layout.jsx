@@ -32,7 +32,6 @@ export const Layout = ({ children }) => {
 
   const userNavItems = [
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/resources", label: "Resources", icon: Package },
     { path: "/my-sites", label: "My Sites", icon: MapPin },
     { path: "/my-requests", label: "My Requests", icon: FileText },
     { path: "/profile", label: "My Profile", icon: User },
