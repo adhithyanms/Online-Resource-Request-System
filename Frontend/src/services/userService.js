@@ -86,5 +86,30 @@ export const userService = {
         } catch (error) {
             throw error.response?.data || error;
         }
+    },
+
+    getMyProfile: async () => {
+        try {
+            const response = await axios.get(`${API_URL}/users/me`, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
+    updateMyProfile: async (formData) => {
+        try {
+            const response = await axios.put(`${API_URL}/users/me/profile`, formData, {
+                headers: {
+                    ...getAuthHeader(),
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
     }
 };

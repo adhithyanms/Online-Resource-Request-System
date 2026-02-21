@@ -64,12 +64,31 @@ exports.getAnalyticsSummary = async (req, res) => {
         const approvedRequests = await Request.countDocuments({ ...match, status: 'approved' });
         const totalSites = await Site.countDocuments();
 
+        // 4. Cost Statistics
+        const costStats = await Request.aggregate([
+            { $match: match },
+            {
+                $group: {
+                    _id: '$status',
+                    totalCost: { $sum: '$totalCost' }
+                }
+            }
+        ]);
+
+        const costMap = {};
+        costStats.forEach(s => {
+            costMap[s._id] = s.totalCost;
+        });
+
         res.status(200).json({
             summary: {
                 totalRequests,
                 pendingRequests,
                 approvedRequests,
-                totalSites
+                totalSites,
+                totalApprovedCost: costMap.approved || 0,
+                totalPendingCost: costMap.pending || 0,
+                totalCost: (costMap.approved || 0) + (costMap.pending || 0) + (costMap.rejected || 0)
             },
             statusStats: statusStats.map(s => ({ name: s._id, value: s.count })),
             resourceStats
@@ -98,7 +117,8 @@ exports.getAnalyticsTrends = async (req, res) => {
                         date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
                         status: '$status'
                     },
-                    count: { $sum: 1 }
+                    count: { $sum: 1 },
+                    cost: { $sum: '$totalCost' }
                 }
             },
             {
@@ -107,9 +127,11 @@ exports.getAnalyticsTrends = async (req, res) => {
                     stats: {
                         $push: {
                             status: '$_id.status',
-                            count: '$count'
+                            count: '$count',
+                            cost: '$cost'
                         }
-                    }
+                    },
+                    totalDayCost: { $sum: '$cost' }
                 }
             },
             { $sort: { _id: 1 } }
@@ -117,9 +139,10 @@ exports.getAnalyticsTrends = async (req, res) => {
 
         // Format for Area Chart
         const formattedTrends = trends.map(t => {
-            const row = { date: t._id };
+            const row = { date: t._id, totalCost: t.totalDayCost };
             t.stats.forEach(s => {
                 row[s.status] = s.count;
+                row[`${s.status}Cost`] = s.cost;
             });
             return row;
         });

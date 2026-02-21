@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package, Calendar } from 'lucide-react';
 
 export const AllRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -12,6 +12,8 @@ export const AllRequests = () => {
   const [showModal, setShowModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     loadRequests();
@@ -81,11 +83,18 @@ export const AllRequests = () => {
     const searchLow = searchTerm.toLowerCase();
     const matchesSearch =
       searchTerm === '' ||
-      request.resource?.name.toLowerCase().includes(searchLow) ||
+      request.items?.some(item => item.resourceId?.name.toLowerCase().includes(searchLow)) ||
       request.user?.fullName.toLowerCase().includes(searchLow) ||
       request.site?.siteName.toLowerCase().includes(searchLow);
-    return matchesFilter && matchesSearch;
+
+    const requestDate = new Date(request.createdAt);
+    const matchesStartDate = !startDate || requestDate >= new Date(startDate);
+    const matchesEndDate = !endDate || requestDate <= new Date(new Date(endDate).setHours(23, 59, 59, 999));
+
+    return matchesFilter && matchesSearch && matchesStartDate && matchesEndDate;
   });
+
+  const totalFilteredCost = filteredRequests.reduce((sum, req) => sum + (req.totalCost || 0), 0);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -160,21 +169,59 @@ export const AllRequests = () => {
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {(startDate || endDate) && (
+                <button
+                  onClick={() => { setStartDate(''); setEndDate(''); }}
+                  className="text-xs text-red-600 hover:text-red-700 font-bold flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" /> Clear Dates
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {filterButtons.map((btn) => (
-              <button
-                key={btn.value}
-                onClick={() => setFilter(btn.value)}
-                className={`flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${filter === btn.value
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-100'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'
-                  }`}
-              >
-                {btn.label} <span className="ml-1 opacity-60">({btn.count})</span>
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2">
+              {filterButtons.map((btn) => (
+                <button
+                  key={btn.value}
+                  onClick={() => setFilter(btn.value)}
+                  className={`flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${filter === btn.value
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-100'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'
+                    }`}
+                >
+                  {btn.label} <span className="ml-1 opacity-60">({btn.count})</span>
+                </button>
+              ))}
+            </div>
+            <div className="bg-blue-50 px-4 py-2 rounded-xl border border-blue-100">
+              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest leading-none mb-1">Total Filtered Cost</p>
+              <p className="text-lg font-black text-blue-600 leading-none">₹{totalFilteredCost.toLocaleString()}</p>
+            </div>
           </div>
         </div>
 

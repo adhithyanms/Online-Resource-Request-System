@@ -4,6 +4,7 @@ import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
 import { resourceService } from '../../services/resourceService';
 import { siteService } from '../../services/siteService';
+import { analyticsService } from '../../services/analyticsService';
 import { BarChart3, Package, FileText, TrendingUp, AlertCircle, MapPin } from 'lucide-react';
 
 export const AdminDashboard = () => {
@@ -14,6 +15,7 @@ export const AdminDashboard = () => {
     pendingRequests: 0,
     approvedRequests: 0,
     rejectedRequests: 0,
+    dailyCost: 0,
   });
   const [recentRequests, setRecentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +26,14 @@ export const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [resources, requests, sites] = await Promise.all([
+      const [resources, requests, sites, todayAnalytics] = await Promise.all([
         resourceService.getAllResources(),
         requestService.getAllRequests(),
         siteService.getAllSites(),
+        analyticsService.getSummary({
+          startDate: new Date().toISOString().split('T')[0],
+          endDate: new Date().toISOString().split('T')[0]
+        }),
       ]);
 
       setStats({
@@ -37,6 +43,7 @@ export const AdminDashboard = () => {
         pendingRequests: requests.filter((r) => r.status === 'pending').length,
         approvedRequests: requests.filter((r) => r.status === 'approved').length,
         rejectedRequests: requests.filter((r) => r.status === 'rejected').length,
+        dailyCost: todayAnalytics.summary.totalCost || 0,
       });
 
       setRecentRequests(requests.slice(0, 5));
@@ -80,8 +87,7 @@ export const AdminDashboard = () => {
             { label: 'Total Sites', value: stats.totalSites, icon: MapPin, color: 'red', to: '/admin/sites' },
             { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple', to: '/admin/requests' },
             { label: 'Pending', value: stats.pendingRequests, icon: AlertCircle, color: 'yellow', to: '/admin/requests' },
-            { label: 'Approved', value: stats.approvedRequests, icon: TrendingUp, color: 'green', to: '/admin/requests' },
-            { label: 'Rejected', value: stats.rejectedRequests, icon: BarChart3, color: 'red', to: '/admin/requests' },
+            { label: 'Daily Cost', value: `₹${stats.dailyCost.toLocaleString()}`, icon: TrendingUp, color: 'blue', to: '/admin/analytics' },
           ].map((item, idx) => (
             <Link key={idx} to={item.to} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 group hover:-translate-y-1">
               <div className="flex items-center justify-between">
