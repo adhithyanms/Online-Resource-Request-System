@@ -10,6 +10,7 @@ export const CreateRequest = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const initialResourceId = location.state?.resourceId || '';
+  const initialSiteId = location.state?.siteId || '';
 
   const [resources, setResources] = useState([]);
   const [mySites, setMySites] = useState([]);
@@ -19,7 +20,7 @@ export const CreateRequest = () => {
 
   // Selection states
   const [selectedResourceId, setSelectedResourceId] = useState(initialResourceId);
-  const [selectedSiteId, setSelectedSiteId] = useState('');
+  const [selectedSiteId, setSelectedSiteId] = useState(initialSiteId);
   const [quantity, setQuantity] = useState('1');
   const [purpose, setPurpose] = useState('');
 
@@ -39,7 +40,9 @@ export const CreateRequest = () => {
       setResources(resourcesData);
       setMySites(sitesData);
 
-      if (sitesData.length === 1) {
+      if (initialSiteId) {
+        setSelectedSiteId(initialSiteId);
+      } else if (sitesData.length === 1) {
         setSelectedSiteId(sitesData[0]._id);
       }
     } catch (error) {

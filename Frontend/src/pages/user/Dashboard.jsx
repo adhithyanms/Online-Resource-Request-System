@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
 import { resourceService } from '../../services/resourceService';
-import { BarChart3, Package, FileText, TrendingUp } from 'lucide-react';
+import { BarChart3, MapPin, FileText, TrendingUp } from 'lucide-react';
 
 export const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -72,7 +72,6 @@ export const Dashboard = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {[
-            { label: 'Available Resources', value: stats.totalResources, icon: Package, color: 'blue', to: '/resources' },
             { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple', to: '/my-requests' },
             { label: 'Pending Requests', value: stats.pendingRequests, icon: TrendingUp, color: 'yellow', to: '/my-requests' },
             { label: 'Approved Requests', value: stats.approvedRequests, icon: BarChart3, color: 'green', to: '/my-requests' },
@@ -100,7 +99,7 @@ export const Dashboard = () => {
           </div>
 
           {recentRequests.length === 0 ? (
-            <p className="text-gray-600 text-center py-8">No requests yet. Start by browsing resources.</p>
+            <p className="text-gray-600 text-center py-8">No requests yet. Go to "My Sites" to make a request.</p>
           ) : (
             <div className="space-y-3">
               {recentRequests.map((request) => (
@@ -130,12 +129,12 @@ export const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link
-            to="/resources"
+            to="/my-sites"
             className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-6 text-center transition-colors"
           >
-            <Package className="h-8 w-8 mx-auto mb-2" />
-            <h3 className="font-semibold">Browse Resources</h3>
-            <p className="text-sm mt-1 opacity-90">View available resources and make requests</p>
+            <MapPin className="h-8 w-8 mx-auto mb-2" />
+            <h3 className="font-semibold">My Sites</h3>
+            <p className="text-sm mt-1 opacity-90">View your sites and initiate requests</p>
           </Link>
 
           <Link

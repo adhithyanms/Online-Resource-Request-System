@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../../components/Layout';
 import { siteService } from '../../services/siteService';
 import { requestService } from '../../services/requestService';
 import {
     MapPin, Phone, Building2, Loader2, Info, X,
-    FileText, Clock, CheckCircle, XCircle
+    FileText, Clock, CheckCircle, XCircle, Plus
 } from 'lucide-react';
 
 export const MySites = () => {
+    const navigate = useNavigate();
     const [sites, setSites] = useState([]);
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -35,6 +37,11 @@ export const MySites = () => {
     const handleSiteClick = (site) => {
         setSelectedSite(site);
         setShowModal(true);
+    };
+
+    const handleCreateRequest = () => {
+        if (!selectedSite) return;
+        navigate('/create-request', { state: { siteId: selectedSite._id } });
     };
 
     const siteRequests = selectedSite
@@ -189,7 +196,13 @@ export const MySites = () => {
                             )}
                         </div>
 
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row justify-end">
+                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row justify-end gap-3">
+                            <button
+                                onClick={handleCreateRequest}
+                                className="px-5 py-2 bg-blue-600 border border-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-bold text-sm shadow-sm flex items-center justify-center gap-2"
+                            >
+                                <Plus className="h-4 w-4" /> Add Resource & Request
+                            </button>
                             <button
                                 onClick={() => setShowModal(false)}
                                 className="px-5 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-100 transition-colors font-bold text-sm shadow-sm"

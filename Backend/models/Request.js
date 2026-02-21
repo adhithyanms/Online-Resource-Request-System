@@ -6,6 +6,8 @@ const requestSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+
+    // asd
     items: [{
         resourceId: {
             type: mongoose.Schema.Types.ObjectId,
