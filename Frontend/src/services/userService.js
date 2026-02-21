@@ -21,7 +21,7 @@ export const userService = {
 
     addUser: async (email) => {
         try {
-            const response = await axios.post(`${API_URL}/users/add`, { email }, {
+            const response = await axios.post(`${API_URL}/users`, { email }, {
                 headers: getAuthHeader()
             });
             return response.data;
