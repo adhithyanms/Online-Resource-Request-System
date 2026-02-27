@@ -2,16 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus, Package } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus, Package, Mail } from 'lucide-react';
 
 export const MyRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-
-  useEffect(() => {
-    loadRequests();
-  }, []);
 
   const loadRequests = async () => {
     try {
@@ -22,6 +18,27 @@ export const MyRequests = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const handleShareGmail = (request) => {
+    const shopEmail = import.meta.env.VITE_SHOP_EMAIL || '';
+    const itemsList = request.items?.map(item => `- ${item.resourceId?.name || 'Unknown'}: ${item.quantity}`).join('\n') || 'No items';
+
+    const subject = encodeURIComponent(`Resource Request - ${request.site?.siteName || 'Request'}`);
+    const body = encodeURIComponent(
+      `Hello,\n\nI would like to share the following resource request details:\n\n` +
+      `Items Requested:\n${itemsList}\n\n` +
+      `Tentative Time: \n` +
+      `Contact Number: \n\n` +
+      `Thank you.`
+    );
+
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${shopEmail}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, '_blank');
   };
 
   const filteredRequests = filter === 'all' ? requests : requests.filter((r) => r.status === filter);
@@ -200,6 +217,16 @@ export const MyRequests = () => {
                       Reviewed on {new Date(request.reviewedAt).toLocaleString()}
                     </p>
                   )}
+
+                  <div className="mt-4 flex justify-end border-t border-gray-100 pt-3">
+                    <button
+                      onClick={() => handleShareGmail(request)}
+                      className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition-all uppercase tracking-wider"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Share to Shop
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

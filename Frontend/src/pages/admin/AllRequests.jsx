@@ -3,7 +3,7 @@ import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
 import { resourceService } from '../../services/resourceService';
 import { siteService } from '../../services/siteService';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package, Calendar, Edit2, Plus, Trash2 } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package, Calendar, Edit2, Plus, Trash2, Mail, Filter } from 'lucide-react';
 
 export const AllRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -22,9 +22,9 @@ export const AllRequests = () => {
   const [allSites, setAllSites] = useState([]);
   const [editFormData, setEditFormData] = useState({
     items: [],
-    siteId: '',
-    purpose: ''
+    siteId: ''
   });
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
     loadRequests();
@@ -78,8 +78,7 @@ export const AllRequests = () => {
         resourceId: item.resourceId?._id || item.resourceId,
         quantity: item.quantity
       })),
-      siteId: request.site?._id || request.siteId?._id || request.siteId,
-      purpose: request.purpose || ''
+      siteId: request.site?._id || request.siteId?._id || request.siteId
     });
     setShowEditModal(true);
   };
@@ -91,6 +90,12 @@ export const AllRequests = () => {
     }
     if (!editFormData.siteId) {
       alert('Please select a site');
+      return;
+    }
+
+    const hasInvalidItems = editFormData.items.some(item => !item.resourceId || item.quantity <= 0);
+    if (hasInvalidItems) {
+      alert('All items must have a resource selected and a quantity greater than 0');
       return;
     }
 
@@ -124,8 +129,26 @@ export const AllRequests = () => {
 
   const updateEditItem = (index, field, value) => {
     const newItems = [...editFormData.items];
-    newItems[index][field] = value;
+    newItems[index] = { ...newItems[index], [field]: value };
     setEditFormData({ ...editFormData, items: newItems });
+  };
+
+  const handleShareGmail = (request) => {
+    const shopEmail = import.meta.env.VITE_SHOP_EMAIL || '';
+
+    const itemsList = request.items?.map(item => `- ${item.resourceId?.name || 'Unknown'}: ${item.quantity}`).join('\n') || 'No items';
+
+    const subject = encodeURIComponent(`Resource Request - ${request.site?.siteName || 'Request'}`);
+    const body = encodeURIComponent(
+      `Hello,\n\nI would like to share the following resource request details:\n\n` +
+      `Items Requested:\n${itemsList}\n\n` +
+      `Tentative Time: \n` +
+      `Contact Number: \n\n` +
+      `Thank you.`
+    );
+
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${shopEmail}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, '_blank');
   };
 
   const handleRejectClick = (request) => {
@@ -238,72 +261,90 @@ export const AllRequests = () => {
           <p className="mt-1 text-sm text-gray-600 font-medium">Review and manage resource requests</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search by resource, user, or site..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              {(startDate || endDate) && (
-                <button
-                  onClick={() => { setStartDate(''); setEndDate(''); }}
-                  className="text-xs text-red-600 hover:text-red-700 font-bold flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" /> Clear Dates
-                </button>
-              )}
-            </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+            <h2 className="text-lg font-black text-gray-900 flex items-center gap-2">
+              <Filter className="h-5 w-5 text-blue-600" />
+              Filters & Search
+            </h2>
+            <button
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              className="sm:hidden flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-700 font-bold rounded-xl border border-gray-200"
+            >
+              {showMobileFilters ? <X className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+              {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
-              {filterButtons.map((btn) => (
-                <button
-                  key={btn.value}
-                  onClick={() => setFilter(btn.value)}
-                  className={`flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${filter === btn.value
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-100'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'
-                    }`}
-                >
-                  {btn.label} <span className="ml-1 opacity-60">({btn.count})</span>
-                </button>
-              ))}
+          <div className={`${showMobileFilters ? 'flex' : 'hidden'} sm:flex flex-col gap-6`}>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search by resource, user, or site..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium text-sm"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <label className="block sm:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Start Date</label>
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none sm:top-0 top-5">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                  />
+                </div>
+                <div className="relative flex-1">
+                  <label className="block sm:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">End Date</label>
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none sm:top-0 top-5">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                  />
+                </div>
+                {(startDate || endDate) && (
+                  <button
+                    onClick={() => { setStartDate(''); setEndDate(''); }}
+                    className="px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-bold flex items-center justify-center gap-2 transition-all border border-transparent hover:border-red-100"
+                  >
+                    <X className="h-4 w-4" /> Clear
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="bg-blue-50 px-4 py-2 rounded-xl border border-blue-100">
-              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest leading-none mb-1">Total Filtered Cost</p>
-              <p className="text-lg font-black text-blue-600 leading-none">₹{totalFilteredCost.toLocaleString()}</p>
+
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pt-4 border-t border-gray-100">
+              <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+                {filterButtons.map((btn) => (
+                  <button
+                    key={btn.value}
+                    onClick={() => setFilter(btn.value)}
+                    className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all border ${filter === btn.value
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'
+                      }`}
+                  >
+                    {btn.label} <span className="ml-1 opacity-60">({btn.count})</span>
+                  </button>
+                ))}
+              </div>
+              <div className="bg-blue-600 px-6 py-3 rounded-2xl shadow-lg shadow-blue-100 w-full lg:w-auto flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-2">
+                <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest leading-none">Total Filtered Cost</p>
+                <p className="text-xl font-black text-white leading-none">₹{totalFilteredCost.toLocaleString()}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -415,6 +456,16 @@ export const AllRequests = () => {
                       </button>
                     </div>
                   )}
+
+                  <div className="mt-4 flex justify-end border-t border-gray-100 pt-3">
+                    <button
+                      onClick={() => handleShareGmail(request)}
+                      className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition-all uppercase tracking-wider"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Share to Shop
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -513,17 +564,6 @@ export const AllRequests = () => {
                 </div>
               </div>
 
-              {/* Purpose */}
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Purpose of Request</label>
-                <textarea
-                  rows={3}
-                  value={editFormData.purpose}
-                  onChange={(e) => setEditFormData({ ...editFormData, purpose: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium text-sm sm:text-base"
-                  placeholder="Describe why these resources are needed..."
-                />
-              </div>
 
               {/* Actions */}
               <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
