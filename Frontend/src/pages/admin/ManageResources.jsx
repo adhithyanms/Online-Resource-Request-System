@@ -124,14 +124,14 @@ export const ManageResources = () => {
     <Layout>
       <div className="space-y-6 pb-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-gray-900">Manage Resources</h1>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-bold rounded-full">
+          <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Manage Resources</h1>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs sm:text-sm font-bold rounded-full whitespace-nowrap">
                 {resources.length} Total
               </span>
             </div>
-            <p className="mt-1 text-gray-600 font-medium">Add, edit, or remove resources</p>
+            <p className="mt-1 text-sm sm:text-base text-gray-600 font-medium whitespace-nowrap">Add, edit, or remove resources</p>
           </div>
           <button
             onClick={handleAddNew}
@@ -215,10 +215,10 @@ export const ManageResources = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-gray-900">
                 {editingResource ? 'Edit Resource' : 'Add New Resource'}
               </h3>
               <button
@@ -230,52 +230,58 @@ export const ManageResources = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Resource Name *
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                  disabled={processing}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                  Price *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">₹</span>
-                  </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="name" className="block text-xs font-black text-blue-400 uppercase tracking-widest mb-1 ml-1">
+                    Resource Name *
+                  </label>
                   <input
-                    id="price"
-                    type="number"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                    className="block w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    id="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="block w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
                     required
                     disabled={processing}
                   />
                 </div>
+
+                <div>
+                  <label htmlFor="price" className="block text-xs font-black text-blue-400 uppercase tracking-widest mb-1 ml-1">
+                    Price *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <span className="text-gray-500 font-bold">₹</span>
+                    </div>
+                    <input
+                      id="price"
+                      type="number"
+                      min="0"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                      className="block w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-bold"
+                      required
+                      disabled={processing}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Quantity removed as per latest request */}
-
-              {/* Description removed */}
-
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  disabled={processing}
+                  className="px-6 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 disabled:opacity-50 transition-all font-bold text-sm"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   disabled={processing}
-                  className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold text-sm shadow-lg shadow-blue-100"
                 >
                   {processing ? (
                     <>
@@ -285,17 +291,9 @@ export const ManageResources = () => {
                   ) : (
                     <>
                       <Save className="h-5 w-5 mr-2" />
-                      Save
+                      Save Resource
                     </>
                   )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  disabled={processing}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
-                >
-                  Cancel
                 </button>
               </div>
             </form>

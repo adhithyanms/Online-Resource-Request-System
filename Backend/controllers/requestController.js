@@ -118,3 +118,60 @@ exports.updateStatus = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.updateRequest = async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied: Admin role required' });
+        }
+
+        const { items, siteId, purpose } = req.body;
+        const currentRequest = await Request.findById(req.params.id);
+
+        if (!currentRequest) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+
+        if (currentRequest.status !== 'pending') {
+            return res.status(400).json({ message: 'Only pending requests can be edited' });
+        }
+
+        let totalCost = currentRequest.totalCost;
+        if (items) {
+            totalCost = 0;
+            for (const item of items) {
+                const resource = await Resource.findById(item.resourceId);
+                if (resource) {
+                    totalCost += (resource.price || 0) * item.quantity;
+                }
+            }
+        }
+
+        const updatedRequest = await Request.findByIdAndUpdate(
+            req.params.id,
+            {
+                items: items || currentRequest.items,
+                siteId: siteId || currentRequest.siteId,
+                purpose: purpose || currentRequest.purpose,
+                totalCost,
+                updatedBy: req.user.id,
+                updatedAt: new Date()
+            },
+            { new: true }
+        )
+            .populate('userId', 'fullName email')
+            .populate('items.resourceId')
+            .populate('siteId', 'siteName');
+
+        const mappedRequest = {
+            ...updatedRequest.toObject(),
+            id: updatedRequest._id.toString(),
+            user: updatedRequest.userId,
+            site: updatedRequest.siteId
+        };
+
+        res.status(200).json(mappedRequest);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

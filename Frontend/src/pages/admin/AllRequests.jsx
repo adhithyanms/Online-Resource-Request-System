@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package, Calendar } from 'lucide-react';
+import { resourceService } from '../../services/resourceService';
+import { siteService } from '../../services/siteService';
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package, Calendar, Edit2, Plus, Trash2, Mail, Filter } from 'lucide-react';
 
 export const AllRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -14,10 +16,33 @@ export const AllRequests = () => {
   const [processing, setProcessing] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRequest, setEditingRequest] = useState(null);
+  const [allResources, setAllResources] = useState([]);
+  const [allSites, setAllSites] = useState([]);
+  const [editFormData, setEditFormData] = useState({
+    items: [],
+    siteId: ''
+  });
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   useEffect(() => {
     loadRequests();
+    loadResourcesAndSites();
   }, []);
+
+  const loadResourcesAndSites = async () => {
+    try {
+      const [resources, sites] = await Promise.all([
+        resourceService.getAllResources(),
+        siteService.getAllSites()
+      ]);
+      setAllResources(resources);
+      setAllSites(sites);
+    } catch (error) {
+      console.error('Error loading resources/sites:', error);
+    }
+  };
 
   const loadRequests = async () => {
     try {
@@ -46,7 +71,88 @@ export const AllRequests = () => {
     }
   };
 
+  const handleEditClick = (request) => {
+    setEditingRequest(request);
+    setEditFormData({
+      items: (request.items || []).map(item => ({
+        resourceId: item.resourceId?._id || item.resourceId,
+        quantity: item.quantity
+      })),
+      siteId: request.site?._id || request.siteId?._id || request.siteId
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSave = async () => {
+    if (editFormData.items.length === 0) {
+      alert('Request must have at least one item');
+      return;
+    }
+    if (!editFormData.siteId) {
+      alert('Please select a site');
+      return;
+    }
+
+    const hasInvalidItems = editFormData.items.some(item => !item.resourceId || item.quantity <= 0);
+    if (hasInvalidItems) {
+      alert('All items must have a resource selected and a quantity greater than 0');
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      const requestId = editingRequest.id || editingRequest._id;
+      await requestService.updateRequest(requestId, editFormData);
+      await loadRequests();
+      setShowEditModal(false);
+      setEditingRequest(null);
+    } catch (error) {
+      console.error('Error updating request:', error);
+      alert(error.message || 'Failed to update request');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const addEditItem = () => {
+    setEditFormData({
+      ...editFormData,
+      items: [...editFormData.items, { resourceId: '', quantity: 1 }]
+    });
+  };
+
+  const removeEditItem = (index) => {
+    const newItems = [...editFormData.items];
+    newItems.splice(index, 1);
+    setEditFormData({ ...editFormData, items: newItems });
+  };
+
+  const updateEditItem = (index, field, value) => {
+    const newItems = [...editFormData.items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setEditFormData({ ...editFormData, items: newItems });
+  };
+
+  const handleShareGmail = (request) => {
+    const shopEmail = import.meta.env.VITE_SHOP_EMAIL || '';
+
+    const itemsList = request.items?.map(item => `- ${item.resourceId?.name || 'Unknown'}: ${item.quantity}`).join('\n') || 'No items';
+
+    const subject = encodeURIComponent(`Resource Request - ${request.site?.siteName || 'Request'}`);
+    const body = encodeURIComponent(
+      `Hello,\n\nI would like to share the following resource request details:\n\n` +
+      `Items Requested:\n${itemsList}\n\n` +
+      `Tentative Time: \n` +
+      `Contact Number: \n\n` +
+      `Thank you.`
+    );
+
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${shopEmail}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, '_blank');
+  };
+
   const handleRejectClick = (request) => {
+
     setSelectedRequest(request);
     setRejectionReason('');
     setShowModal(true);
@@ -155,72 +261,90 @@ export const AllRequests = () => {
           <p className="mt-1 text-sm text-gray-600 font-medium">Review and manage resource requests</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search by resource, user, or site..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              {(startDate || endDate) && (
-                <button
-                  onClick={() => { setStartDate(''); setEndDate(''); }}
-                  className="text-xs text-red-600 hover:text-red-700 font-bold flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" /> Clear Dates
-                </button>
-              )}
-            </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+            <h2 className="text-lg font-black text-gray-900 flex items-center gap-2">
+              <Filter className="h-5 w-5 text-blue-600" />
+              Filters & Search
+            </h2>
+            <button
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              className="sm:hidden flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-700 font-bold rounded-xl border border-gray-200"
+            >
+              {showMobileFilters ? <X className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+              {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
-              {filterButtons.map((btn) => (
-                <button
-                  key={btn.value}
-                  onClick={() => setFilter(btn.value)}
-                  className={`flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${filter === btn.value
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-100'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'
-                    }`}
-                >
-                  {btn.label} <span className="ml-1 opacity-60">({btn.count})</span>
-                </button>
-              ))}
+          <div className={`${showMobileFilters ? 'flex' : 'hidden'} sm:flex flex-col gap-6`}>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search by resource, user, or site..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium text-sm"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <label className="block sm:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Start Date</label>
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none sm:top-0 top-5">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                  />
+                </div>
+                <div className="relative flex-1">
+                  <label className="block sm:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">End Date</label>
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none sm:top-0 top-5">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                  />
+                </div>
+                {(startDate || endDate) && (
+                  <button
+                    onClick={() => { setStartDate(''); setEndDate(''); }}
+                    className="px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-bold flex items-center justify-center gap-2 transition-all border border-transparent hover:border-red-100"
+                  >
+                    <X className="h-4 w-4" /> Clear
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="bg-blue-50 px-4 py-2 rounded-xl border border-blue-100">
-              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest leading-none mb-1">Total Filtered Cost</p>
-              <p className="text-lg font-black text-blue-600 leading-none">₹{totalFilteredCost.toLocaleString()}</p>
+
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pt-4 border-t border-gray-100">
+              <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+                {filterButtons.map((btn) => (
+                  <button
+                    key={btn.value}
+                    onClick={() => setFilter(btn.value)}
+                    className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all border ${filter === btn.value
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'
+                      }`}
+                  >
+                    {btn.label} <span className="ml-1 opacity-60">({btn.count})</span>
+                  </button>
+                ))}
+              </div>
+              <div className="bg-blue-600 px-6 py-3 rounded-2xl shadow-lg shadow-blue-100 w-full lg:w-auto flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-2">
+                <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest leading-none">Total Filtered Cost</p>
+                <p className="text-xl font-black text-white leading-none">₹{totalFilteredCost.toLocaleString()}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -322,14 +446,154 @@ export const AllRequests = () => {
                         <XCircle className="h-4 w-4 mr-2" />
                         Reject
                       </button>
+                      <button
+                        onClick={() => handleEditClick(request)}
+                        disabled={processing}
+                        className="flex-1 flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-blue-100"
+                      >
+                        <Edit2 className="h-4 w-4 mr-2" />
+                        Edit
+                      </button>
                     </div>
                   )}
+
+                  <div className="mt-4 flex justify-end border-t border-gray-100 pt-3">
+                    <button
+                      onClick={() => handleShareGmail(request)}
+                      className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition-all uppercase tracking-wider"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Share to Shop
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 my-8 relative">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="h-6 w-6" />
+            </button>
+
+            <div className="mb-6">
+              <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                <Edit2 className="h-6 w-6 text-blue-600" />
+                Edit Request
+              </h3>
+              <p className="text-sm text-gray-500 font-medium mt-1">
+                Modify request details for <span className="text-blue-600 font-bold">{editingRequest?.user?.fullName}</span>
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {/* Site Selection */}
+              <div>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Target Site</label>
+                <select
+                  value={editFormData.siteId}
+                  onChange={(e) => setEditFormData({ ...editFormData, siteId: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                >
+                  <option value="">Select a site</option>
+                  {allSites.map(site => (
+                    <option key={site._id} value={site._id}>{site.siteName}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Items Management */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Requested Items</label>
+                  <button
+                    onClick={addEditItem}
+                    className="text-xs font-bold text-blue-600 flex items-center gap-1 hover:text-blue-700 transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add Item
+                  </button>
+                </div>
+                <div className="space-y-4 max-h-60 overflow-y-auto p-1">
+                  {editFormData.items.map((item, index) => (
+                    <div key={index} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-blue-50/30 p-3 sm:p-4 rounded-xl border border-blue-100/50 relative group">
+                      <div className="flex-1 w-full">
+                        <label className="block sm:hidden text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Resource</label>
+                        <select
+                          value={item.resourceId}
+                          onChange={(e) => updateEditItem(index, 'resourceId', e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        >
+                          <option value="">Select Resource</option>
+                          {allResources.map(res => (
+                            <option key={res._id} value={res._id}>{res.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="w-full sm:w-24">
+                        <label className="block sm:hidden text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Quantity</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => updateEditItem(index, 'quantity', parseInt(e.target.value))}
+                          className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-center sm:text-left"
+                          placeholder="Qty"
+                        />
+                      </div>
+                      <button
+                        onClick={() => removeEditItem(index)}
+                        className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors sm:mt-0 absolute top-2 right-2 sm:relative sm:top-0 sm:right-0"
+                        title="Remove item"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {editFormData.items.length === 0 && (
+                    <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                      <p className="text-sm text-gray-400 font-medium">No items added yet</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+
+              {/* Actions */}
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  disabled={processing}
+                  className="w-full sm:px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-all text-sm sm:text-base"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditSave}
+                  disabled={processing}
+                  className="flex-1 bg-blue-600 text-white font-black py-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
+                >
+                  {processing ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-5 w-5" />
+                      Save Changes
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
