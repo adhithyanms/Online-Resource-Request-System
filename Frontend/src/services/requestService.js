@@ -57,5 +57,16 @@ export const requestService = {
         } catch (error) {
             throw error.response?.data || error;
         }
+    },
+
+    updateRequest: async (requestId, updatedData) => {
+        try {
+            const response = await axios.put(`${API_URL}/requests/${requestId}`, updatedData, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
     }
 };
