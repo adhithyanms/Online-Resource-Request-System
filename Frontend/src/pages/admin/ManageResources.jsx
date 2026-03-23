@@ -124,18 +124,18 @@ export const ManageResources = () => {
     <Layout>
       <div className="space-y-6 pb-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Manage Resources</h1>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs sm:text-sm font-bold rounded-full whitespace-nowrap">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Manage Resources</h1>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] sm:text-xs font-bold rounded-full whitespace-nowrap uppercase tracking-wider">
                 {resources.length} Total
               </span>
             </div>
-            <p className="mt-1 text-sm sm:text-base text-gray-600 font-medium whitespace-nowrap">Add, edit, or remove resources</p>
+            <p className="mt-1 text-sm sm:text-base text-gray-600 font-medium">Add, edit, or remove inventory resources</p>
           </div>
           <button
             onClick={handleAddNew}
-            className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold text-sm shadow-sm"
+            className="flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-sm active:scale-95 flex-shrink-0"
           >
             <Plus className="h-5 w-5 mr-2" />
             Add Resource
@@ -158,43 +158,42 @@ export const ManageResources = () => {
         </div>
 
         {filteredResources.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No resources found</h3>
-            <p className="text-gray-600 mb-4">Get started by adding a new resource</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 text-center">
+            <Package className="h-12 w-12 sm:h-16 sm:w-16 text-gray-200 mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-gray-900 mb-2">No resources found</h3>
+            <p className="text-gray-500 mb-6 text-sm">Get started by adding your first resource to the system</p>
             <button
               onClick={handleAddNew}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm"
             >
               <Plus className="h-5 w-5 mr-2" />
               Add Resource
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredResources.map((resource) => (
               <div
                 key={resource.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 border border-transparent transition-all duration-300 group"
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-blue-200 transition-all duration-300 group flex flex-col"
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-3">
+                <div className="p-5 sm:p-6 flex-1 flex flex-col">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="bg-blue-50 p-3 rounded-xl group-hover:bg-blue-600 transition-colors duration-300">
                       <Package className="h-6 w-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
                     </div>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded">
+                    <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-black rounded-lg border border-blue-100">
                       ₹{resource.price || 0}
                     </span>
                   </div>
-
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">{resource.name}</h3>
-                  {/* Description removed */}
-
-                  <div className="flex gap-2">
+ 
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-6 flex-1 line-clamp-2">{resource.name}</h3>
+ 
+                  <div className="flex gap-2 mt-auto">
                     <button
                       onClick={() => handleEdit(resource)}
                       disabled={processing}
-                      className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex-1 flex items-center justify-center px-3 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold text-xs"
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
@@ -202,13 +201,14 @@ export const ManageResources = () => {
                     <button
                       onClick={() => handleDelete(resource)}
                       disabled={processing}
-                      className="flex items-center justify-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center justify-center px-3 py-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold border border-red-100"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
               </div>
+
             ))}
           </div>
         )}

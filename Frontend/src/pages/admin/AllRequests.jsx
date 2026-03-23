@@ -3,7 +3,7 @@ import { Layout } from '../../components/Layout';
 import { requestService } from '../../services/requestService';
 import { resourceService } from '../../services/resourceService';
 import { siteService } from '../../services/siteService';
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package, Calendar, Edit2, Plus, Trash2, Mail, Filter } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Search, X, Package, Calendar, Edit2, Plus, Trash2, Mail, Filter, Users as UsersIcon, MapPin } from 'lucide-react';
 
 export const AllRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -147,8 +147,15 @@ export const AllRequests = () => {
       `Thank you.`
     );
 
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${shopEmail}&su=${subject}&body=${body}`;
-    window.open(gmailUrl, '_blank');
+    // Use mailto: for mobile devices, and mail.google.com for desktop
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      window.location.href = `mailto:${shopEmail}?subject=${subject}&body=${body}`;
+    } else {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${shopEmail}&su=${subject}&body=${body}`;
+      window.open(gmailUrl, '_blank');
+    }
   };
 
   const handleRejectClick = (request) => {
@@ -350,120 +357,136 @@ export const AllRequests = () => {
         </div>
 
         {filteredRequests.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No requests found</h3>
-            <p className="text-gray-600">Try adjusting your filters or search</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 text-center">
+            <div className="bg-gray-50 p-4 rounded-full w-fit mx-auto mb-4 border border-gray-100">
+              <FileText className="h-10 w-10 sm:h-12 sm:w-12 text-gray-300 mx-auto" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">No requests found</h3>
+            <p className="text-gray-400 text-sm max-w-xs mx-auto">Try adjusting your filters or search terms to find what you're looking for</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {filteredRequests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg shadow-md p-4 md:p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start flex-1 min-w-0">
-                    <div className="hidden sm:flex bg-blue-50 p-2.5 rounded-xl mr-4 flex-shrink-0 items-center justify-center border border-blue-100/50">
-                      {getStatusIcon(request.status)}
+              <div key={request.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 hover:shadow-md transition-all duration-300">
+                <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+                  <div className="flex-1 w-full min-w-0">
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                      <div className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 shadow-sm flex items-center justify-center">
+                        {getStatusIcon(request.status)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                             Request: {request.items?.length || 0} Items
+                          </h3>
+                          <span
+                            className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border shadow-sm ${getStatusBadge(
+                              request.status
+                            )}`}
+                          >
+                            {request.status}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-medium text-gray-400 uppercase tracking-tighter mt-0.5">
+                          ID: {request._id || request.id}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                          Request for {request.items?.length || 0} items
-                        </h3>
-                        <span
-                          className={`px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border shadow-sm ${getStatusBadge(
-                            request.status
-                          )}`}
-                        >
-                          {request.status}
-                        </span>
-                      </div>
-                      <div className="space-y-2 my-3">
-                        {request.items?.map((item, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 bg-blue-50/30 p-2 rounded-lg border border-blue-100/50">
-                            <Package className="h-3.5 w-3.5 text-blue-500" />
-                            <span className="font-bold">{item.resourceId?.name || 'Unknown resource'}</span>
-                            <span className="text-gray-400 font-medium">Qty: {item.quantity}</span>
+ 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                      {request.items?.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-3 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100/50 group hover:bg-blue-600 transition-all duration-300">
+                          <div className="p-1.5 bg-white rounded-lg shadow-sm group-hover:bg-blue-500 transition-colors">
+                            <Package className="h-3.5 w-3.5 text-blue-600 group-hover:text-white" />
                           </div>
-                        ))}
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm text-gray-600">
-                          <span className="text-gray-400 font-medium">By:</span> <strong>{request.user?.fullName || 'Unknown'}</strong>
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          <span className="text-gray-400 font-medium">Site:</span> {request.site?.siteName || 'Unknown Site'}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 p-3 bg-gray-50/50 rounded-xl border border-gray-100/50">
-                        <div className="text-xs text-gray-600">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Total Cost</span>
-                          <span className="font-bold text-blue-600">₹{request.totalCost || 0}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[12px] font-bold text-gray-800 group-hover:text-white truncate transition-colors">{item.resourceId?.name || 'Unknown'}</p>
+                            <p className="text-[10px] font-black text-blue-500 group-hover:text-blue-100 uppercase tracking-widest leading-none mt-0.5 transition-colors">Qty: {item.quantity}</p>
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-600">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Date</span>
-                          <span className="font-medium text-gray-700">{new Date(request.createdAt).toLocaleDateString()}</span>
+                      ))}
+                    </div>
+ 
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 mb-6">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Request Details</p>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                          <p className="text-[12px] text-gray-700 flex items-center gap-2">
+                            <UsersIcon className="h-3.5 w-3.5 text-gray-400" />
+                            <span className="font-bold">{request.user?.fullName || 'Anonymous'}</span>
+                          </p>
+                          <div className="w-1 h-1 bg-gray-300 rounded-full hidden sm:block"></div>
+                          <p className="text-[12px] text-gray-700 flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                            <span className="font-bold">{request.site?.siteName || 'Global Site'}</span>
+                          </p>
                         </div>
+                      </div>
+                      <div className="sm:text-right flex-shrink-0">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Valuation</p>
+                        <p className="text-xl font-black text-blue-600">₹{request.totalCost || 0}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="mb-3">
-                    <h4 className="text-sm font-medium text-gray-700 mb-1">Purpose:</h4>
-                    <p className="text-sm text-gray-600">{request.purpose}</p>
+                <div className="border-t border-gray-100 pt-5">
+                  <div className="mb-4">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Mission Purpose</p>
+                    <p className="text-sm text-gray-700 font-medium bg-gray-50 p-3 rounded-xl border border-gray-100">{request.purpose || 'None provided'}</p>
                   </div>
 
                   {request.status === 'rejected' && request.rejectionReason && (
-                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
-                      <div className="flex items-start">
-                        <AlertCircle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <div className="mt-4 p-4 bg-red-50/50 border border-red-100 rounded-2xl">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-white rounded-lg shadow-sm">
+                          <AlertCircle className="h-4 w-4 text-red-600" />
+                        </div>
                         <div>
-                          <h4 className="text-sm font-medium text-red-900 mb-1">
-                            Rejection Reason:
+                          <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-0.5">
+                            Rejection Reason
                           </h4>
-                          <p className="text-sm text-red-700">{request.rejectionReason}</p>
+                          <p className="text-sm font-bold text-red-700">{request.rejectionReason}</p>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {request.status === 'pending' && (
-                    <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
-                      <button
-                        onClick={() => handleApprove(request)}
-                        disabled={processing}
-                        className="flex-1 flex items-center justify-center px-4 py-2.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-green-100"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleRejectClick(request)}
-                        disabled={processing}
-                        className="flex-1 flex items-center justify-center px-4 py-2.5 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-red-100"
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Reject
-                      </button>
-                      <button
-                        onClick={() => handleEditClick(request)}
-                        disabled={processing}
-                        className="flex-1 flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm shadow-blue-100"
-                      >
-                        <Edit2 className="h-4 w-4 mr-2" />
-                        Edit
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="mt-4 flex justify-end border-t border-gray-100 pt-3">
+                  <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
+                    {request.status === 'pending' && (
+                      <div className="flex-1 flex flex-col sm:flex-row gap-2 sm:gap-3">
+                        <button
+                          onClick={() => handleApprove(request)}
+                          disabled={processing}
+                          className="flex-1 flex items-center justify-center px-4 py-3 bg-green-600 text-white font-black rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-green-100/50 active:scale-95 text-xs uppercase tracking-wider"
+                        >
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleRejectClick(request)}
+                          disabled={processing}
+                          className="flex-1 flex items-center justify-center px-4 py-3 bg-red-600 text-white font-black rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-red-100/50 active:scale-95 text-xs uppercase tracking-wider"
+                        >
+                          <XCircle className="h-4 w-4 mr-2" />
+                          Reject
+                        </button>
+                        <button
+                          onClick={() => handleEditClick(request)}
+                          disabled={processing}
+                          className="flex-1 flex items-center justify-center px-4 py-3 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-100/50 active:scale-95 text-xs uppercase tracking-wider"
+                        >
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Edit
+                        </button>
+                      </div>
+                    )}
                     <button
                       onClick={() => handleShareGmail(request)}
-                      className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition-all uppercase tracking-wider"
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-black text-blue-600 bg-white hover:bg-blue-50 rounded-xl border-2 border-blue-50 hover:border-blue-100 transition-all uppercase tracking-widest active:scale-95 whitespace-nowrap ml-auto"
                     >
                       <Mail className="h-4 w-4" />
-                      Share to Shop
+                      Dispatch to Shop
                     </button>
                   </div>
                 </div>
@@ -596,49 +619,54 @@ export const AllRequests = () => {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Reject Request</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-gray-900 flex items-center gap-2.5">
+                <XCircle className="h-6 w-6 text-red-600" />
+                Reject Request
+              </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <p className="text-sm text-gray-600 mb-4">
-              You are rejecting the request by <strong>{selectedRequest?.user?.fullName}</strong> for <strong>{selectedRequest?.items?.length} items</strong>.
-            </p>
+            <div className="mb-6 p-4 bg-red-50/50 rounded-2xl border border-red-100">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                 Are you sure you want to reject the request from <span className="font-black text-red-700">{selectedRequest?.user?.fullName}</span>?
+              </p>
+            </div>
 
-            <div className="mb-4">
-              <label htmlFor="rejectionReason" className="block text-sm font-medium text-gray-700 mb-1">
-                Rejection Reason
+            <div className="mb-8">
+              <label htmlFor="rejectionReason" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                Formal Rejection Reason
               </label>
               <textarea
                 id="rejectionReason"
                 rows={4}
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Explain why this request is being rejected..."
+                className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:bg-white transition-all font-bold text-sm"
+                placeholder="Explain the reason for this decision..."
                 disabled={processing}
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleRejectSubmit}
                 disabled={processing || !rejectionReason.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-[2] px-6 py-3.5 bg-red-600 text-white font-black rounded-xl hover:bg-red-700 disabled:opacity-50 shadow-lg shadow-red-100 transition-all uppercase tracking-widest text-xs"
               >
                 {processing ? 'Processing...' : 'Confirm Rejection'}
               </button>
               <button
                 onClick={() => setShowModal(false)}
                 disabled={processing}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                className="flex-1 px-6 py-3.5 bg-gray-100 text-gray-600 font-black rounded-xl hover:bg-gray-200 transition-all uppercase tracking-widest text-xs"
               >
                 Cancel
               </button>

@@ -10,7 +10,9 @@ const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
 
 const photoUrl = (path) => {
     if (!path) return null;
+    // If it's already an absolute URL (Cloudinary), return as is
     if (path.startsWith('http')) return path;
+    // Otherwise fallback to backend local uploads (for legacy files)
     return `${API_BASE}${path}`;
 };
 

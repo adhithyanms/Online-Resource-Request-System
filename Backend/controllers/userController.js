@@ -13,6 +13,27 @@ const isSuperAdmin = (req) => req.user?.email?.toLowerCase() === SUPER_ADMIN_EMA
 
 const accessDenied = (res, message = 'Access denied') => res.status(403).json({ message });
 
+// Multer file objects differ between local disk storage and Cloudinary storage:
+// - local: { filename, path }
+// - Cloudinary: { filename (public_id), path (URL) }
+const getUploadedUrl = (file) => {
+    if (!file) return '';
+
+    // CloudinaryStorage sets `path` to a full URL for fetching.
+    if (typeof file.path === 'string' && /^https?:\/\//i.test(file.path)) return file.path;
+
+    // Local disk storage: we store the URL as /uploads/<filename>
+    if (file.filename) return `/uploads/${file.filename}`;
+
+    // Fallback: derive name from local path.
+    if (typeof file.path === 'string') {
+        const name = path.basename(file.path);
+        return name ? `/uploads/${name}` : '';
+    }
+
+    return '';
+};
+
 // Helper: Map user to public response object
 const mapUserResponse = (user) => ({
     _id: user._id,
@@ -149,9 +170,9 @@ const handleProfileUpdate = async ({ req, res, user }) => {
 
     // Update file fields
     const files = req.files || {};
-    if (files.profilePhoto?.[0]) user.profilePhotoUrl = `/uploads/${files.profilePhoto[0].filename}`;
-    if (files.aadhaarPhoto?.[0]) user.aadhaarPhotoUrl = `/uploads/${files.aadhaarPhoto[0].filename}`;
-    if (files.panCardPhoto?.[0]) user.panCardPhotoUrl = `/uploads/${files.panCardPhoto[0].filename}`;
+    if (files.profilePhoto?.[0]) user.profilePhotoUrl = getUploadedUrl(files.profilePhoto[0]);
+    if (files.aadhaarPhoto?.[0]) user.aadhaarPhotoUrl = getUploadedUrl(files.aadhaarPhoto[0]);
+    if (files.panCardPhoto?.[0]) user.panCardPhotoUrl = getUploadedUrl(files.panCardPhoto[0]);
 
     await user.save();
 

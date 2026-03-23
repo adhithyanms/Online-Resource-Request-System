@@ -1,29 +1,30 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Ensure uploads directory exists
-// On Vercel, the filesystem is read-only except for /tmp
-const uploadsDir = process.env.VERCEL
-    ? path.join('/tmp', 'uploads')
-    : path.join(__dirname, '..', 'uploads');
+// Configure Cloudinary explicitly with credentials from environment
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dpwtohaz0',
+    api_key: process.env.CLOUDINARY_API_KEY || '555746737368663',
+    api_secret: process.env.CLOUDINARY_API_SECRET || 'QicpAD2347iApB_NxirYDsuEz6U'
+});
 
-try {
-    if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-} catch (err) {
-    console.error('Failed to create uploads directory:', err);
-}
+// Use Cloudinary as the primary storage
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: (req, file) => {
+        const folder = process.env.CLOUDINARY_FOLDER || 'uploads';
+        const isPdf = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
+        const ext = path.extname(file.originalname).replace('.', '').toLowerCase();
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+        return {
+            folder,
+            resource_type: isPdf ? 'raw' : 'image',
+            format: ext || undefined,
+            public_id: `${file.fieldname}-${Date.now()}-${Math.round(Math.random() * 1e9)}`
+        };
     }
 });
 
@@ -51,4 +52,4 @@ const uploadProfileDocs = upload.fields([
     { name: 'panCardPhoto', maxCount: 1 }
 ]);
 
-module.exports = { uploadProfileDocs, uploadsDir };
+module.exports = { uploadProfileDocs };

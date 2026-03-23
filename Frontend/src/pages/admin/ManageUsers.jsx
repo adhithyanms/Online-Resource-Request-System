@@ -5,15 +5,17 @@ import { userService } from '../../services/userService';
 import {
   Users, Search, UserPlus, Edit2, Trash2,
   AlertCircle, CheckCircle, Save, X, Image, FileText,
-  Phone, MapPin, Eye, ArrowLeft, Clock, CheckCircle2, XCircle, Package, Shield
+  Phone, MapPin, Eye, ArrowLeft, Clock, CheckCircle2, XCircle, Package, Shield, Plus
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
 
 const photoUrl = (path) => {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  return `${API_BASE}${path}`;
+    if (!path) return null;
+    // If it's already an absolute URL (Cloudinary), return as is
+    if (path.startsWith('http')) return path;
+    // Otherwise fallback to backend local uploads (for legacy files)
+    return `${API_BASE}${path}`;
 };
 
 const Avatar = ({ src, name }) => {
@@ -331,40 +333,39 @@ const Badge = ({ label, color }) => (
 // ── User Row ──────────────────────────────────────────────────────────────────
 // ── User Row ──────────────────────────────────────────────────────────────────
 const UserRow = ({ user: u, onSelect, onEdit, onDelete, isSuperAdmin, onRoleChange }) => (
-  <div className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-blue-50/50 transition-colors cursor-pointer" onClick={() => onSelect(u)}>
+  <div className="flex items-center gap-3 px-3 sm:px-4 py-3.5 hover:bg-blue-50/50 transition-colors cursor-pointer group" onClick={() => onSelect(u)}>
     <Avatar src={u.profilePhotoUrl} name={u.fullName || u.email} />
     <div className="flex-1 min-w-0">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-gray-900 truncate">{u.fullName || <span className="text-gray-400 italic font-normal">No name</span>}</p>
-        {/* Role badge only on mobile if name is long */}
-        <div className="sm:hidden">
-          <Badge label={u.role} color={u.role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'} />
+        <p className="text-sm font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">{u.fullName || <span className="text-gray-400 italic font-normal">No name</span>}</p>
+        <div className="sm:hidden flex-shrink-0">
+          <Badge label={u.role} color={u.role === 'admin' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-gray-50 text-gray-600 border border-gray-100'} />
         </div>
       </div>
-      <p className="text-xs text-gray-500 truncate">{u.email}</p>
-      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+      <p className="text-[11px] font-medium text-gray-500 truncate">{u.email}</p>
+      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
         <div className="hidden sm:block">
-          <Badge label={u.role} color={u.role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'} />
+          <Badge label={u.role} color={u.role === 'admin' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-gray-50 text-gray-600 border border-gray-100'} />
         </div>
-        <Badge label={u.isAllowed ? 'Active' : 'Inactive'} color={u.isAllowed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'} />
-        {u.phone && <span className="text-[10px] sm:text-xs text-gray-400 font-medium flex items-center gap-1"><Phone className="h-2.5 w-2.5" /> {u.phone}</span>}
+        <Badge label={u.isAllowed ? 'Active' : 'Inactive'} color={u.isAllowed ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-600 border border-red-100'} />
+        {u.phone && <span className="text-[10px] text-gray-400 font-bold flex items-center gap-1 uppercase tracking-tighter"><Phone className="h-2.5 w-2.5" /> {u.phone}</span>}
       </div>
     </div>
-    <div className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0">
+    <div className="flex lg:opacity-0 group-hover:opacity-100 items-center gap-1 sm:gap-1.5 flex-shrink-0 transition-opacity">
       {isSuperAdmin && u.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
         <button onClick={(e) => { e.stopPropagation(); onRoleChange(u, u.role === 'admin' ? 'user' : 'admin'); }}
-          className={`p-1.5 sm:p-2 rounded-lg transition-colors ${u.role === 'admin' ? 'text-gray-500 hover:bg-gray-100' : 'text-blue-600 hover:bg-blue-50'}`}
+          className={`p-2 rounded-xl border transition-all ${u.role === 'admin' ? 'text-gray-400 bg-white border-gray-100 hover:bg-gray-50' : 'text-blue-600 bg-blue-50 border-blue-100 hover:bg-blue-100'}`}
           title={u.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}>
-          <Shield className="h-4 w-4" />
+          <Shield className="h-3.5 w-3.5" />
         </button>
       )}
       <button onClick={(e) => { e.stopPropagation(); onEdit(); }}
-        className="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit profile">
-        <Edit2 className="h-4 w-4" />
+        className="p-2 bg-white text-blue-600 border border-blue-100 hover:bg-blue-50 rounded-xl transition-all shadow-sm" title="Edit Profile">
+        <Edit2 className="h-3.5 w-3.5" />
       </button>
       <button onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="p-1.5 sm:p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete user">
-        <Trash2 className="h-4 w-4" />
+        className="p-2 bg-red-50 text-red-500 border border-red-100 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm" title="Delete User">
+        <Trash2 className="h-3.5 w-3.5" />
       </button>
     </div>
   </div>
@@ -526,14 +527,14 @@ export const ManageUsers = () => {
           <h2 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <UserPlus className="h-4 w-4 text-blue-600" /> Add New User
           </h2>
-          <form onSubmit={handleAddUser} className="flex flex-col sm:flex-row gap-2">
+          <form onSubmit={handleAddUser} className="flex flex-col sm:flex-row gap-3">
             <input type="email" value={addEmail} onChange={e => setAddEmail(e.target.value)}
               placeholder="user@example.com" disabled={addLoading}
-              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0" />
+              className="flex-1 px-4 py-2.5 border border-gray-100 bg-gray-50/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0" />
             <button type="submit" disabled={addLoading}
-              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm font-medium transition-colors whitespace-nowrap">
-              {addLoading ? <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
-              Add
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 text-sm font-bold transition-all whitespace-nowrap shadow-sm active:scale-95">
+              {addLoading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="h-4 w-4" />}
+              Add User
             </button>
           </form>
           {addMessage.text && (
@@ -580,27 +581,27 @@ export const ManageUsers = () => {
         {/* User Detail Panel */}
         {selectedUser && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 gap-4">
               <div className="flex items-center gap-3">
-                <button onClick={() => setSelectedUser(null)} className="p-1.5 text-gray-500 hover:bg-white/60 rounded-lg transition-colors">
+                <button onClick={() => setSelectedUser(null)} className="p-2 text-gray-500 hover:bg-white/60 rounded-xl transition-colors">
                   <ArrowLeft className="h-4 w-4" />
                 </button>
                 <Avatar src={selectedUser.profilePhotoUrl} name={selectedUser.fullName || selectedUser.email} />
-                <div>
-                  <h2 className="text-base font-semibold text-gray-900">{selectedUser.fullName || 'No name'}</h2>
-                  <p className="text-xs text-gray-500">{selectedUser.email}</p>
+                <div className="min-w-0">
+                  <h2 className="text-base font-bold text-gray-900 truncate">{selectedUser.fullName || 'No name'}</h2>
+                  <p className="text-[11px] font-medium text-gray-500 truncate">{selectedUser.email}</p>
                 </div>
               </div>
-              <div className="flex gap-1.5">
+              <div className="flex items-center justify-end gap-2">
                 {isSuperAdmin && selectedUser.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
                   <button onClick={() => setRoleChange({ user: selectedUser, newRole: selectedUser.role === 'admin' ? 'user' : 'admin' })}
-                    className={`p-1.5 rounded-lg transition-colors ${selectedUser.role === 'admin' ? 'text-gray-500 hover:bg-gray-100' : 'text-blue-600 hover:bg-blue-100'}`}
+                    className={`p-2 rounded-xl transition-all border ${selectedUser.role === 'admin' ? 'text-gray-500 bg-white border-gray-200 hover:bg-gray-50' : 'text-blue-600 bg-blue-100/50 border-blue-200 hover:bg-blue-100'}`}
                     title={selectedUser.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}>
                     <Shield className="h-4 w-4" />
                   </button>
                 )}
-                <button onClick={() => setEditUser(selectedUser)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Edit"><Edit2 className="h-4 w-4" /></button>
-                <button onClick={() => setDeleteUser(selectedUser)} className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={() => setEditUser(selectedUser)} className="p-2 bg-white text-blue-600 border border-blue-100 hover:bg-blue-50 rounded-xl transition-all shadow-sm" title="Edit Profile"><Edit2 className="h-4 w-4" /></button>
+                <button onClick={() => setDeleteUser(selectedUser)} className="p-2 bg-red-50 text-red-500 border border-red-100 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm" title="Delete User"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
             {/* Profile Info */}

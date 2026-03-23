@@ -130,43 +130,43 @@ export const Analytics = () => {
         </div>
 
         {/* Filters */}
-
-        {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="h-4 w-4 text-blue-600" />
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Advanced Segmentation</span>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-blue-600" />
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Advanced Segmentation</span>
+            </div>
             {(filters.siteId || filters.userId || filters.resourceId || filters.startDate || filters.endDate) && (
               <button onClick={() => setFilters({ siteId: "", userId: "", resourceId: "", startDate: "", endDate: "" })}
-                className="ml-auto text-xs text-blue-600 hover:underline flex items-center gap-1 font-bold">
-                <X className="h-3 w-3" /> Clear Filters
+                className="sm:ml-auto text-[11px] text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1.5 px-2 py-1 bg-blue-50/50 rounded-lg transition-all border border-blue-100/50">
+                <X className="h-3 w-3" /> Clear All Filters
               </button>
             )}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             {[
               { label: 'Site', name: 'siteId', options: sites, valKey: '_id', labelKey: 'siteName' },
               { label: 'Requester', name: 'userId', options: users, valKey: '_id', labelKey: 'fullName', fallbackKey: 'email' },
               { label: 'Resource', name: 'resourceId', options: resources, valKey: '_id', labelKey: 'name' }
             ].map(f => (
               <div key={f.name}>
-                <p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1">{f.label.toUpperCase()}</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1 uppercase tracking-tighter">{f.label}</p>
                 <select name={f.name} value={filters[f.name]} onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500 bg-gray-50/50 outline-none transition-all">
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[12px] font-bold focus:ring-2 focus:ring-blue-500 bg-gray-50/50 outline-none transition-all text-gray-700">
                   <option value="">All {f.label}s</option>
                   {f.options.map(opt => <option key={opt[f.valKey]} value={opt[f.valKey]}>{opt[f.labelKey] || opt[f.fallbackKey]}</option>)}
                 </select>
               </div>
             ))}
             <div>
-              <p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1">FROM</p>
+              <p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1 uppercase tracking-tighter">FROM</p>
               <input type="date" name="startDate" value={filters.startDate} onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500 bg-gray-50/50 outline-none transition-all" />
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[12px] font-bold focus:ring-2 focus:ring-blue-500 bg-gray-50/50 outline-none transition-all text-gray-700" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1">TO</p>
+              <p className="text-[10px] font-bold text-gray-400 mb-1.5 ml-1 uppercase tracking-tighter">TO</p>
               <input type="date" name="endDate" value={filters.endDate} onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500 bg-gray-50/50 outline-none transition-all" />
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-[12px] font-bold focus:ring-2 focus:ring-blue-500 bg-gray-50/50 outline-none transition-all text-gray-700" />
             </div>
           </div>
         </div>
@@ -181,17 +181,17 @@ export const Analytics = () => {
               </div>
               <TrendingUp className="h-5 w-5 text-blue-500" />
             </div>
-            <div className="h-80 w-full">
+            <div className="h-64 sm:h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trends}>
+                <AreaChart data={trends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorApproved" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22C55E" stopOpacity={0.1} /><stop offset="95%" stopColor="#22C55E" stopOpacity={0} /></linearGradient>
                     <linearGradient id="colorPending" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#EAB308" stopOpacity={0.1} /><stop offset="95%" stopColor="#EAB308" stopOpacity={0} /></linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(val) => val.split('-').slice(1).join('/')} />
-                  <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fontWeight: 600, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(val) => val.split('-').slice(1).join('/')} />
+                  <YAxis tick={{ fontSize: 9, fontWeight: 600, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 700 }} />
                   <Area type="monotone" dataKey="approved" stroke="#22C55E" fillOpacity={1} fill="url(#colorApproved)" fillRule="nonzero" strokeWidth={3} />
                   <Area type="monotone" dataKey="pending" stroke="#EAB308" fillOpacity={1} fill="url(#colorPending)" fillRule="nonzero" strokeWidth={3} />
                 </AreaChart>
@@ -208,16 +208,16 @@ export const Analytics = () => {
               </div>
               <PieChartIcon className="h-5 w-5 text-indigo-500" />
             </div>
-            <div className="h-80">
+            <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={data?.statusStats} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={8} dataKey="value">
+                  <Pie data={data?.statusStats} cx="50%" cy="50%" innerRadius={window.innerWidth < 640 ? 50 : 60} outerRadius={window.innerWidth < 640 ? 75 : 90} paddingAngle={8} dataKey="value">
                     {data?.statusStats.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] || COLORS[index % COLORS.length]} cornerRadius={10} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                  <Legend iconType="circle" />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 700 }} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 600 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -232,14 +232,14 @@ export const Analytics = () => {
               </div>
               <Package className="h-5 w-5 text-emerald-500" />
             </div>
-            <div className="flex-1 min-h-[300px]">
+            <div className="flex-1 min-h-[250px] sm:min-h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.resourceStats} layout="vertical" margin={{ left: 20 }}>
+                <BarChart data={data?.resourceStats} layout="vertical" margin={{ left: window.innerWidth < 640 ? -10 : 20 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                  <Bar dataKey={metricType === 'count' ? 'requestCount' : 'totalQuantity'} fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={16}>
+                  <YAxis dataKey="name" type="category" width={window.innerWidth < 640 ? 60 : 80} tick={{ fontSize: 9, fontWeight: 600, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 700 }} />
+                  <Bar dataKey={metricType === 'count' ? 'requestCount' : 'totalQuantity'} fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={window.innerWidth < 640 ? 12 : 16}>
                     {data?.resourceStats.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}

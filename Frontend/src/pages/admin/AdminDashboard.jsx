@@ -72,27 +72,29 @@ export const AdminDashboard = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-2 text-gray-600">System overview and management</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="mt-1 text-sm sm:text-base text-gray-600">System overview and management</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
           {[
             { label: 'Resources', value: stats.totalResources, icon: Package, color: 'blue', to: '/admin/resources' },
-            { label: 'Total Sites', value: stats.totalSites, icon: MapPin, color: 'red', to: '/admin/sites' },
-            { label: 'Total Requests', value: stats.totalRequests, icon: FileText, color: 'purple', to: '/admin/requests' },
+            { label: 'Sites', value: stats.totalSites, icon: MapPin, color: 'red', to: '/admin/sites' },
+            { label: 'Requests', value: stats.totalRequests, icon: FileText, color: 'purple', to: '/admin/requests' },
             { label: 'Pending', value: stats.pendingRequests, icon: AlertCircle, color: 'yellow', to: '/admin/requests' },
             { label: 'Daily Cost', value: `₹${stats.dailyCost.toLocaleString()}`, icon: TrendingUp, color: 'blue', to: '/admin/analytics' },
           ].map((item, idx) => (
-            <Link key={idx} to={item.to} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 group hover:-translate-y-1">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">{item.label}</p>
-                  <p className={`text-3xl font-bold mt-2 text-${item.color}-600`}>{item.value}</p>
+            <Link key={idx} to={item.to} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md transition-all duration-300 group hover:-translate-y-1">
+              <div className="flex items-center justify-between sm:flex-col sm:items-start sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-400 text-[9px] font-bold uppercase tracking-widest truncate">{item.label}</p>
+                  <p className={`text-xl sm:text-2xl font-bold mt-1 text-${item.color}-600`}>{item.value}</p>
                 </div>
-                <div className={`bg-${item.color}-50 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300`}>
-                  <item.icon className={`h-6 w-6 text-${item.color}-600`} />
+                <div className={`bg-${item.color}-50 p-2.5 rounded-xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                  <item.icon className={`h-5 w-5 text-${item.color}-600`} />
                 </div>
               </div>
             </Link>
@@ -120,31 +122,33 @@ export const AdminDashboard = () => {
                   {recentRequests.map((request) => (
                     <div
                       key={request._id || request.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-5 hover:bg-gray-50/50 transition-colors group"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 hover:bg-gray-50/50 transition-colors group gap-3 sm:gap-4"
                     >
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{request.resource?.name}</h3>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5">
-                          <p className="text-xs text-gray-500">
+                        <h3 className="font-bold text-sm sm:text-base text-gray-900 group-hover:text-blue-600 transition-colors truncate">{request.resource?.name}</h3>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                          <p className="text-[11px] sm:text-xs text-gray-500">
                             By <span className="font-semibold text-gray-700">{request.user?.fullName}</span>
                           </p>
                           <div className="w-1 h-1 bg-gray-300 rounded-full hidden sm:block"></div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-[11px] sm:text-xs text-gray-500">
                             Site: <span className="font-semibold text-gray-700">{request.site?.siteName || 'N/A'}</span>
                           </p>
                           <div className="w-1 h-1 bg-gray-300 rounded-full hidden sm:block"></div>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-[11px] sm:text-xs text-gray-500">
                             Qty: <span className="font-semibold text-gray-700">{request.quantity_requested}</span>
                           </p>
                         </div>
                       </div>
-                      <span
-                        className={`mt-3 sm:mt-0 inline-flex items-center justify-center px-2.5 py-1 text-[10px] font-bold rounded-full border shadow-sm uppercase tracking-wider ${getStatusBadge(
-                          request.status
-                        )}`}
-                      >
-                        {request.status}
-                      </span>
+                      <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
+                        <span
+                          className={`inline-flex items-center justify-center px-2.5 py-1 text-[9px] font-bold rounded-full border shadow-sm uppercase tracking-wider ${getStatusBadge(
+                            request.status
+                          )}`}
+                        >
+                          {request.status}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>

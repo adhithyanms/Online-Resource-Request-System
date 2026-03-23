@@ -139,18 +139,18 @@ export const ManageSites = () => {
         <Layout>
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-bold text-gray-900">Manage Sites</h1>
-                            <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-bold rounded-full">
+                    <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Manage Sites</h1>
+                            <span className="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] sm:text-xs font-bold rounded-full whitespace-nowrap uppercase tracking-wider border border-blue-200">
                                 {sites.length} Total
                             </span>
                         </div>
-                        <p className="mt-1 text-gray-600 font-medium">Create and manage operation sites and assign users</p>
+                        <p className="mt-1 text-sm sm:text-base text-gray-600 font-medium">Create and manage operation sites and assign users</p>
                     </div>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-bold text-sm"
+                        className="flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold text-sm active:scale-95 flex-shrink-0"
                     >
                         <Plus className="h-5 w-5 mr-2" />
                         New Site
@@ -164,64 +164,64 @@ export const ManageSites = () => {
                         <p className="text-gray-500">Get started by creating your first operation site</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                         {sites.map(site => (
-                            <div key={site._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-blue-100 transition-all duration-300 group">
-                                <div className="p-6">
+                            <div key={site._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-blue-100 transition-all duration-300 group flex flex-col">
+                                <div className="p-5 sm:p-6 flex-1 flex flex-col">
                                     <div className="flex justify-between items-start mb-5">
                                         <div className="bg-blue-50 p-2.5 rounded-xl group-hover:bg-blue-600 transition-colors duration-300">
                                             <Building2 className="h-6 w-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
                                         </div>
-                                        <div className="flex gap-1.5 translate-x-2 -translate-y-2">
-                                            <button onClick={() => handleOpenModal(site)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit Site">
+                                        <div className="flex gap-1.5">
+                                            <button onClick={() => handleOpenModal(site)} className="p-2 text-gray-400 bg-white border border-gray-100 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 rounded-xl transition-all shadow-sm" title="Edit Site">
                                                 <Edit2 className="h-4 w-4" />
                                             </button>
-                                            <button onClick={() => handleDelete(site._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Delete Site">
+                                            <button onClick={() => handleDelete(site._id)} className="p-2 text-gray-400 bg-white border border-gray-100 hover:text-red-600 hover:border-red-200 hover:bg-red-50 rounded-xl transition-all shadow-sm" title="Delete Site">
                                                 <Trash2 className="h-4 w-4" />
                                             </button>
                                         </div>
                                     </div>
-
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">{site.siteName}</h3>
-
-                                    <div className="space-y-3 text-sm text-gray-500 mb-6">
+ 
+                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors truncate">{site.siteName}</h3>
+ 
+                                    <div className="space-y-3 text-[13px] text-gray-500 mb-6 flex-1">
                                         <div className="flex items-start">
                                             <MapPin className="h-4 w-4 mr-2.5 mt-0.5 flex-shrink-0 text-gray-400" />
-                                            <span className="leading-tight">{site.siteAddress}</span>
+                                            <span className="leading-tight line-clamp-2">{site.siteAddress}</span>
                                         </div>
                                         <div className="flex items-center">
-                                            <Phone className="h-4 w-4 mr-2.5 flex-shrink-0 text-gray-400" />
-                                            <span className="font-medium text-gray-700">{site.contactNumber}</span>
+                                            <Phone className="h-3.5 w-3.5 mr-2.5 flex-shrink-0 text-gray-400" />
+                                            <span className="font-bold text-gray-700">{site.contactNumber}</span>
                                         </div>
                                         <div className="flex items-center">
-                                            <Users className="h-4 w-4 mr-2.5 flex-shrink-0 text-gray-400" />
-                                            <span className="font-medium text-gray-700">{site.assignedUsers.length} Users Locked In</span>
+                                            <Users className="h-3.5 w-3.5 mr-2.5 flex-shrink-0 text-gray-400" />
+                                            <span className="font-bold text-gray-700">{site.assignedUsers.length} Users Locked In</span>
                                         </div>
                                     </div>
-
-                                    <div className="mt-4 pt-5 border-t border-gray-50 flex flex-wrap gap-2">
+ 
+                                    <div className="mt-auto pt-4 border-t border-gray-50 flex flex-wrap gap-1.5">
                                         {site.assignedUsers.length > 0 ? (
                                             <>
                                                 {site.assignedUsers.slice(0, 3).map(u => (
-                                                    <div key={u._id} className="flex items-center bg-gray-50 border border-gray-100/50 rounded-full pl-1.5 pr-3 py-1 hover:bg-white hover:border-blue-200 transition-all cursor-default" title={u.fullName || u.email}>
-                                                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-[9px] flex items-center justify-center font-black mr-2 uppercase border border-blue-200 shadow-inner">
+                                                    <div key={u._id} className="flex items-center bg-gray-50 border border-gray-100 rounded-full pl-1.5 pr-2.5 py-0.5 hover:bg-white hover:border-blue-200 transition-all cursor-default" title={u.fullName || u.email}>
+                                                        <div className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 text-[8px] flex items-center justify-center font-black mr-1.5 uppercase border border-blue-200">
                                                             {(u.fullName || u.email).charAt(0)}
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight truncate max-w-[70px]">
+                                                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tight truncate max-w-[70px]">
                                                             {u.fullName?.split(' ')[0] || u.email.split('@')[0]}
                                                         </span>
                                                     </div>
                                                 ))}
                                                 {site.assignedUsers.length > 3 && (
-                                                    <div className="bg-gray-100 text-gray-400 rounded-full px-2.5 py-1 text-[10px] font-black uppercase border border-gray-200/50">
+                                                    <div className="bg-gray-100 text-gray-400 rounded-full px-2 py-0.5 text-[9px] font-black uppercase border border-gray-200/50">
                                                         +{site.assignedUsers.length - 3}
                                                     </div>
                                                 )}
                                             </>
                                         ) : (
-                                            <div className="flex items-center gap-2 text-gray-400 italic text-[10px]">
+                                            <div className="flex items-center gap-2 text-gray-400 italic text-[10px] font-medium">
                                                 <AlertCircle className="h-3 w-3" />
-                                                No users assigned to this site
+                                                No users assigned
                                             </div>
                                         )}
                                     </div>

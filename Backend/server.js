@@ -36,9 +36,6 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Serve uploaded files (profile photos, documents)
-const { uploadsDir } = require('./middleware/uploadMiddleware');
-app.use('/uploads', express.static(uploadsDir));
 
 app.use('/auth', authRoutes);
 app.use('/resources', resourceRoutes);
