@@ -516,7 +516,7 @@ export const ManageUsers = () => {
       {deleteUser && <DeleteConfirmModal user={deleteUser} onClose={() => setDeleteUser(null)} onDeleted={handleDeleted} />}
       {roleChange && <RoleConfirmModal user={roleChange.user} newRole={roleChange.newRole} onClose={() => setRoleChange(null)} onConfirmed={handleRoleChanged} />}
 
-      <div className="space-y-5 max-w-3xl mx-auto px-4 sm:px-0">
+      <div className="space-y-5 max-w-6xl mx-auto px-4 sm:px-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
           <p className="text-sm text-gray-500 mt-1">Add users by email and manage their profiles</p>

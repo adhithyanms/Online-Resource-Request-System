@@ -52,7 +52,7 @@ export const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={`${isAdmin ? 'max-w-[1600px]' : 'max-w-7xl'} mx-auto px-4 ${isAdmin ? 'sm:px-8 lg:px-12' : 'sm:px-6 lg:px-8'}`}>
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link
@@ -66,25 +66,25 @@ export const Layout = ({ children }) => {
               </Link>
             </div>
 
-            <div className="hidden md:flex items-center space-x-4">
+            <div className={`hidden ${isAdmin ? 'lg:flex' : 'md:flex'} items-center space-x-1 lg:space-x-4`}>
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(item.path)
+                    className={`flex items-center px-2 lg:px-3 py-2 rounded-md text-[11px] lg:text-sm font-medium transition-colors ${isActive(item.path)
                       ? "bg-blue-50 text-blue-700"
                       : "text-gray-700 hover:bg-gray-100"
                       }`}
                   >
-                    <Icon className="h-4 w-4 mr-2" />
+                    <Icon className="h-4 w-4 md:mr-1 lg:mr-2" />
                     {item.label}
                   </Link>
                 );
               })}
 
-              <div className="flex items-center ml-4 pl-4 border-l border-gray-200">
+              <div className="flex items-center ml-2 lg:ml-4 pl-2 lg:pl-4 border-l border-gray-200">
                 <div className="flex items-center mr-4">
                   <span className="text-sm text-gray-700 font-medium">
                     {user?.fullName ?? user?.email}
@@ -105,7 +105,7 @@ export const Layout = ({ children }) => {
               </div>
             </div>
 
-            <div className="md:hidden flex items-center">
+            <div className={`${isAdmin ? 'lg:hidden' : 'md:hidden'} flex items-center`}>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
@@ -121,7 +121,7 @@ export const Layout = ({ children }) => {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200">
+          <div className={`${isAdmin ? 'lg:hidden' : 'md:hidden'} border-t border-gray-200`}>
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -164,7 +164,7 @@ export const Layout = ({ children }) => {
         )}
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main className={`${isAdmin ? 'max-w-[1600px]' : 'max-w-7xl'} mx-auto px-4 ${isAdmin ? 'sm:px-8 lg:px-12' : 'sm:px-6 lg:px-8'} py-4 sm:py-8`}>
         {children}
       </main>
     </div>

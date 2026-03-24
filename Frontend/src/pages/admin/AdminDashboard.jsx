@@ -79,7 +79,7 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
           {[
             { label: 'Resources', value: stats.totalResources, icon: Package, color: 'blue', to: '/admin/resources' },
             { label: 'Sites', value: stats.totalSites, icon: MapPin, color: 'red', to: '/admin/sites' },
@@ -101,7 +101,7 @@ export const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Recent Requests - 2 Columns on Desktop */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
