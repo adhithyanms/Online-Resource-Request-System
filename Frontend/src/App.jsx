@@ -30,14 +30,14 @@ function App() {
     <Routes>
       <Route
         path="/"
-        element={user ? <Navigate to="/dashboard" replace /> : <Login />}
+        element={user ? <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace /> : <Login />}
       />
 
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            {user?.role === "admin" ? <Navigate to="/admin" replace /> : <Dashboard />}
           </ProtectedRoute>
         }
       />

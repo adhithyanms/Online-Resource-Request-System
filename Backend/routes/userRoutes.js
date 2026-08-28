@@ -31,6 +31,9 @@ router.put('/role-by-email', verifyToken, userController.updateRoleByEmail);
 // Admin: update role by ID
 router.put('/:id/role', verifyToken, userController.updateUserRole);
 
+// Admin: update allowed status by ID
+router.put('/:id/allowed', verifyToken, userController.updateUserAllowedStatus);
+
 // Admin: delete user
 router.delete('/:id', verifyToken, userController.deleteUser);
 

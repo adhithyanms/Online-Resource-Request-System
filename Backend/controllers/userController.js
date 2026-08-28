@@ -288,3 +288,37 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// PUT /users/:id/allowed — Admin approves/activates a user or toggles their active status
+exports.updateUserAllowedStatus = async (req, res) => {
+    try {
+        if (!isAdmin(req)) return accessDenied(res);
+
+        const { id } = req.params;
+        const { isAllowed } = req.body;
+
+        if (isAllowed === undefined || typeof isAllowed !== 'boolean') {
+            return res.status(400).json({ message: 'isAllowed (boolean) is required' });
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prevent admin from disabling themselves
+        if (user._id.toString() === req.user.id && !isAllowed) {
+            return res.status(400).json({ message: 'You cannot deactivate your own account' });
+        }
+
+        user.isAllowed = isAllowed;
+        await user.save();
+
+        res.status(200).json({
+            message: `User ${isAllowed ? 'activated' : 'deactivated'} successfully`,
+            user: mapUserResponse(user)
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

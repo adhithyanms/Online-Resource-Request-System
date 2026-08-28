@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Package, AlertCircle, LogIn, Loader, User, Mail, Lock, UserPlus } from 'lucide-react';
+import { Package, AlertCircle, LogIn, Loader, User, Mail, Lock, UserPlus, CheckCircle } from 'lucide-react';
 
 export const Register = () => {
   const [fullName, setFullName] = useState('');
@@ -10,6 +10,7 @@ export const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [localLoading, setLocalLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const { user, loading: authLoading, signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -28,8 +29,11 @@ export const Register = () => {
       return;
     }
 
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address');
+    const emailRegex = /^[a-z]+\.(it|cs|ee|ec|cd|cb|ad|al|fd)(22|23|24|25|26)@bitsathy\.ac\.in$/;
+    const isSuperAdmin = email.toLowerCase() === 'adhithyanshanmugam@gmail.com';
+
+    if (!isSuperAdmin && !emailRegex.test(email)) {
+      setError('Please use a valid email format: name.deptyear@bitsathy.ac.in');
       return;
     }
 
@@ -51,12 +55,11 @@ export const Register = () => {
       if (error) {
         setError(error.message);
       } else {
-        navigate('/dashboard');
+        setIsSubmitted(true);
       }
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {
-      setLocalLoading(true); // Small mistake in previous logic, should be false, but I will fix it here
       setLocalLoading(false);
     }
   };
@@ -65,6 +68,28 @@ export const Register = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-lg shadow-xl p-8 text-center flex flex-col items-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-6">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Request Submitted</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Your account registration request has been submitted to the administrator. 
+              Once the admin approves your account, you will be able to log in.
+            </p>
+            <Link to="/" className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+              <LogIn className="h-5 w-5 mr-2" /> Back to Sign In
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }

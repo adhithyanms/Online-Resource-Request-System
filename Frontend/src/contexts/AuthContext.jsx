@@ -103,6 +103,29 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const signUp = async (email, password, fullName) => {
+    try {
+      // 1. Create user in Firebase
+      await createUserWithEmailAndPassword(auth, email, password);
+
+      // 2. Register user in backend (isAllowed will be false by default)
+      const data = await api.post("/auth/signup", { email, password, fullName });
+
+      // Sign out from Firebase immediately so we don't have a half-logged-in session
+      await firebaseSignOut(auth);
+
+      return { data, error: null };
+    } catch (error) {
+      // If Firebase registration succeeded but backend failed, clean up by signing out of Firebase
+      try {
+        await firebaseSignOut(auth);
+      } catch (e) {
+        console.error("Error signing out of firebase after registration failure:", e);
+      }
+      return { data: null, error };
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -122,6 +145,7 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signInWithGoogle,
     signOut,
+    signUp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

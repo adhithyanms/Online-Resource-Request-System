@@ -332,7 +332,7 @@ const Badge = ({ label, color }) => (
 
 // ── User Row ──────────────────────────────────────────────────────────────────
 // ── User Row ──────────────────────────────────────────────────────────────────
-const UserRow = ({ user: u, onSelect, onEdit, onDelete, isSuperAdmin, onRoleChange }) => (
+const UserRow = ({ user: u, onSelect, onEdit, onDelete, isSuperAdmin, onRoleChange, onToggleAllowed }) => (
   <div className="flex items-center gap-3 px-3 sm:px-4 py-3.5 hover:bg-blue-50/50 transition-colors cursor-pointer group" onClick={() => onSelect(u)}>
     <Avatar src={u.profilePhotoUrl} name={u.fullName || u.email} />
     <div className="flex-1 min-w-0">
@@ -352,6 +352,12 @@ const UserRow = ({ user: u, onSelect, onEdit, onDelete, isSuperAdmin, onRoleChan
       </div>
     </div>
     <div className="flex lg:opacity-0 group-hover:opacity-100 items-center gap-1 sm:gap-1.5 flex-shrink-0 transition-opacity">
+      {!u.isAllowed && (
+        <button onClick={(e) => { e.stopPropagation(); onToggleAllowed(u); }}
+          className="p-2 bg-green-50 text-green-600 border border-green-100 hover:bg-green-600 hover:text-white rounded-xl transition-all shadow-sm flex items-center justify-center" title="Approve User">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+        </button>
+      )}
       {isSuperAdmin && u.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
         <button onClick={(e) => { e.stopPropagation(); onRoleChange(u, u.role === 'admin' ? 'user' : 'admin'); }}
           className={`p-2 rounded-xl border transition-all ${u.role === 'admin' ? 'text-gray-400 bg-white border-gray-100 hover:bg-gray-50' : 'text-blue-600 bg-blue-50 border-blue-100 hover:bg-blue-100'}`}
@@ -420,6 +426,25 @@ export const ManageUsers = () => {
       setUsers(Array.isArray(data) ? data : []);
     } catch { setUsers([]); }
     finally { setLoading(false); }
+  };
+
+  const handleToggleAllowed = async (u) => {
+    try {
+      const newStatus = !u.isAllowed;
+      const res = await userService.updateUserAllowedStatus(u._id, newStatus);
+      
+      // Update local states
+      setUsers(prev => prev.map(item => item._id === u._id ? { ...item, isAllowed: newStatus } : item));
+      if (selectedUser && selectedUser._id === u._id) {
+        setSelectedUser(prev => ({ ...prev, isAllowed: newStatus }));
+      }
+      
+      setAddMessage({ type: 'success', text: res.message || `User status updated successfully` });
+      setTimeout(() => setAddMessage({ type: '', text: '' }), 4000);
+    } catch (err) {
+      setAddMessage({ type: 'error', text: err?.message || 'Failed to update user status' });
+      setTimeout(() => setAddMessage({ type: '', text: '' }), 4000);
+    }
   };
 
   const handleAddUser = async (e) => {
@@ -593,6 +618,16 @@ export const ManageUsers = () => {
                 </div>
               </div>
               <div className="flex items-center justify-end gap-2">
+                {selectedUser.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
+                  <button 
+                    onClick={() => handleToggleAllowed(selectedUser)} 
+                    className={`px-3 py-2 rounded-xl transition-all text-xs font-bold border flex items-center gap-1.5 ${selectedUser.isAllowed ? 'text-red-600 bg-red-50 border-red-200 hover:bg-red-100' : 'text-green-600 bg-green-50 border-green-200 hover:bg-green-100'}`}
+                    title={selectedUser.isAllowed ? 'Deactivate User' : 'Activate User'}
+                  >
+                    {selectedUser.isAllowed ? <XCircle className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                    {selectedUser.isAllowed ? 'Deactivate' : 'Approve'}
+                  </button>
+                )}
                 {isSuperAdmin && selectedUser.email?.toLowerCase() !== 'adhithyanshanmugam@gmail.com' && (
                   <button onClick={() => setRoleChange({ user: selectedUser, newRole: selectedUser.role === 'admin' ? 'user' : 'admin' })}
                     className={`p-2 rounded-xl transition-all border ${selectedUser.role === 'admin' ? 'text-gray-500 bg-white border-gray-200 hover:bg-gray-50' : 'text-blue-600 bg-blue-100/50 border-blue-200 hover:bg-blue-100'}`}
@@ -698,6 +733,7 @@ export const ManageUsers = () => {
                   onDelete={() => setDeleteUser(u)}
                   isSuperAdmin={isSuperAdmin}
                   onRoleChange={(user, newRole) => setRoleChange({ user, newRole })}
+                  onToggleAllowed={handleToggleAllowed}
                 />
               ))}
             </div>

@@ -300,6 +300,43 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "User role updated successfully", "user", user));
     }
 
+    // PUT /users/:id/allowed - Admin updates allowed status by ID
+    @PutMapping("/{id}/allowed")
+    public ResponseEntity<?> updateUserAllowedStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("id") String id,
+            @RequestBody Map<String, Object> body) {
+        User currentUser = userDetails.getUser();
+        if (!isAdmin(currentUser)) {
+            return accessDenied();
+        }
+
+        Object isAllowedObj = body.get("isAllowed");
+        if (isAllowedObj == null || !(isAllowedObj instanceof Boolean)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "isAllowed (boolean) is required"));
+        }
+
+        boolean isAllowed = (Boolean) isAllowedObj;
+
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found"));
+        }
+
+        // Prevent admin from disabling themselves
+        if (user.getId().equals(currentUser.getId()) && !isAllowed) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "You cannot deactivate your own account"));
+        }
+
+        user.setAllowed(isAllowed);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "User " + (isAllowed ? "activated" : "deactivated") + " successfully",
+                "user", user
+        ));
+    }
+
     // DELETE /users/:id - Admin deletes user (except super admin)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable("id") String id) {

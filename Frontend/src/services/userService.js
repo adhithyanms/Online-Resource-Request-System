@@ -77,6 +77,17 @@ export const userService = {
         }
     },
 
+    updateUserAllowedStatus: async (userId, isAllowed) => {
+        try {
+            const response = await axios.put(`${API_URL}/users/${userId}/allowed`, { isAllowed }, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error;
+        }
+    },
+
     deleteUser: async (userId) => {
         try {
             const response = await axios.delete(`${API_URL}/users/${userId}`, {

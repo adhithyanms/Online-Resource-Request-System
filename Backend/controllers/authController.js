@@ -57,7 +57,7 @@ exports.googleSignin = async (req, res) => {
       // Existing user — check if allowed
       if (!user.isAllowed) {
         return res.status(403).json({
-          message: "Your account has not been activated by admin. Please contact the administrator."
+          message: "Your account registration request is pending admin approval. Please wait for activation."
         });
       }
 
@@ -67,22 +67,23 @@ exports.googleSignin = async (req, res) => {
         await user.save();
       }
     } else {
-      // New user via Google — only allow admin to auto-register
+      // New user via Google — only super admin is allowed immediately, normal users are created inactive
       const isAdmin = normalizedEmail === SUPER_ADMIN_EMAIL;
-      if (!isAdmin) {
-        return res.status(403).json({
-          message: "Your account has not been activated by admin. Please contact the administrator."
-        });
-      }
-
+      
       user = new User({
         email: normalizedEmail,
-        fullName,
-        role: "admin",
-        isAllowed: true,
+        fullName: fullName || "",
+        role: isAdmin ? "admin" : "user",
+        isAllowed: isAdmin,
         password: await bcrypt.hash(Math.random().toString(36).slice(-10), 10),
       });
       await user.save();
+
+      if (!isAdmin) {
+        return res.status(403).json({
+          message: "Your account registration request has been submitted to the admin. Please wait for activation."
+        });
+      }
     }
 
     const token = generateToken(user);
@@ -92,6 +93,47 @@ exports.googleSignin = async (req, res) => {
       id: user._id,
       email: user.email,
       role: user.role,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.signup = async (req, res) => {
+  try {
+    const { email, password, fullName } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail });
+
+    if (existingUser) {
+      if (!existingUser.isAllowed) {
+        return res.status(400).json({
+          message: "An account activation request for this email has already been submitted and is pending admin approval."
+        });
+      } else {
+        return res.status(400).json({
+          message: "An account with this email is already registered and activated. Please log in."
+        });
+      }
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      email: normalizedEmail,
+      password: hashedPassword,
+      fullName: fullName || "",
+      role: "user",
+      isAllowed: false,
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      message: "Registration request submitted successfully. Please wait for admin approval before logging in."
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
