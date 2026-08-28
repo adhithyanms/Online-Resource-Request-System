@@ -2,7 +2,6 @@ package com.orrs.controller;
 
 import com.orrs.model.Request;
 import com.orrs.model.User;
-import com.orrs.repository.RequestRepository;
 import com.orrs.repository.SiteRepository;
 import com.orrs.security.CustomUserDetails;
 import org.bson.types.ObjectId;
@@ -37,9 +36,6 @@ public class AnalyticsController {
 
     @Autowired
     private MongoTemplate mongoTemplate;
-
-    @Autowired
-    private RequestRepository requestRepository;
 
     @Autowired
     private SiteRepository siteRepository;
